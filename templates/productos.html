@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Productos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <h1>Lista de Productos</h1>
+    <form method="get" action="/">
+        <input type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
+        <button type="submit">Buscar</button>
+    </form>
+    <ul>
+        {% for producto in productos %}
+            <li>{{ producto.nombre }} - ${{ producto.precio }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
