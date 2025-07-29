@@ -15,8 +15,7 @@
         }
     </style>
     <script>
-        function toggleEdit(button) {
-            const id = button.getAttribute('data-id');
+        function toggleEdit(id) {
             const editSection = document.getElementById('edit-section-' + id);
             if (editSection.style.display === 'none' || editSection.style.display === '') {
                 editSection.style.display = 'block';
@@ -45,14 +44,11 @@
     </form>
 
     <!-- Lista productos -->
-   <ul>
-    {% for producto in productos %}
-        <li>
-            <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
-            
-            <!-- Botón editar y formulario visible solo si hay consulta activa -->
-            {% if consulta %}
-                <button type="button" onclick="toggleEdit({{ producto.id }})" style="margin-left:20px;">Editar</button>
+    <ul>
+        {% for producto in productos %}
+            <li>
+                <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
+                <button onclick="toggleEdit({{ producto.id }})" style="margin-left:20px;">Editar</button>
 
                 <div id="edit-section-{{ producto.id }}" class="edit-section">
                     <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline-block; margin-right:10px;">
@@ -63,7 +59,8 @@
                         <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este producto?')">Eliminar</button>
                     </form>
                 </div>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
