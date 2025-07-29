@@ -1,4 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from flask import send_file
 import json
 
 app = Flask(__name__)
@@ -128,6 +131,32 @@ def actualizar(id_producto):
     nuevo_precio = float(request.form.get('precio'))
     actualizar_precio(productos, id_producto, nuevo_precio)
     return redirect(url_for('lista_productos'))
+
+@app.route('/generar_pdf')
+def generar_pdf():
+    productos = producto.query.all()
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.setTitle("Lista de Productos")
+
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(50, 800, "Lista de Productos")
+
+    y = 770
+    pdf.setFont("Helvetica", 12)
+    for producto in productos:
+        linea = f"{producto.nombre} - ${producto.precio:.2f} - {producto.categoria}"
+        pdf.drawString(50, y, linea)
+        y -= 20
+        if y < 50:
+            pdf.showPage()
+            y = 800
+
+    pdf.save()
+    buffer.seek(0)
+    
+    return send_file(buffer, as_attachment=True, download_name="lista_productos.pdf", mimetype='application/pdf')
 
 if __name__ == '__main__':
     app.run(debug=True)
