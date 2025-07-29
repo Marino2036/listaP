@@ -3,16 +3,45 @@
 <head>
     <title>Lista de Productos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        form { margin-bottom: 20px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 10px; }
+        input[type="text"], input[type="number"] { padding: 5px; }
+        button { padding: 5px 10px; }
+    </style>
 </head>
 <body>
     <h1>Lista de Productos</h1>
+
+    <!-- Buscar -->
     <form method="get" action="/">
         <input type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
     </form>
+
+    <!-- Agregar producto nuevo -->
+    <h2>Agregar producto nuevo</h2>
+    <form method="post" action="/agregar">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="number" name="precio" placeholder="Precio" min="0" step="0.01" required>
+        <input type="text" name="categoria" placeholder="Categoría" required>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <!-- Lista productos -->
     <ul>
         {% for producto in productos %}
-            <li>{{ producto.nombre }} - ${{ producto.precio }}</li>
+            <li>
+                <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
+                <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline-block; margin-left:20px;">
+                    <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
+                    <button type="submit">Actualizar</button>
+                </form>
+                <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline-block;">
+                    <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este producto?')">Eliminar</button>
+                </form>
+            </li>
         {% endfor %}
     </ul>
 </body>
