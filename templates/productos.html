@@ -48,7 +48,8 @@
         {% for producto in productos %}
             <li>
                 <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
-                <button onclick="toggleEdit({ productoid })" style="margin-left:20px;">Editar</button>
+                <button type="button" onclick="toggleEdit({{ producto.id }})" style="margin-left:20px;">Editar</button>
+
 
                 <div id="edit-section-{{ producto.id }}" class="edit-section">
                     <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline-block; margin-right:10px;">
