@@ -48,7 +48,7 @@
         {% for producto in productos %}
             <li>
                 <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
-                <button type="button" onclick="toggleEdit({{ producto.id }})" style="margin-left:20px;">Editar</button>
+              <button type="button" data-id="{{ producto.id }}" onclick="toggleEdit(this)" style="margin-left:20px;">Editar</button>
 
 
                 <div id="edit-section-{{ producto.id }}" class="edit-section">
