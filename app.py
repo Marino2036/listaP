@@ -4,9 +4,9 @@ app = Flask(__name__)
 
 # Lista de productos de ejemplo
 productos = [
-    {"id": 1, "nombre": "Manzana", "precio": 10},
-    {"id": 2, "nombre": "Plátano", "precio": 8},
-    {"id": 3, "nombre": "Naranja", "precio": 12},
+    {"id": 1, "nombre": "boing 500ml", "precio": 10},
+    {"id": 2, "nombre": "boing 250ml", "precio": 8},
+    {"id": 3, "nombre": "Naranjada 600", "precio": 12},
     {"id": 4, "nombre": "Leche", "precio": 20},
     {"id": 5, "nombre": "Pan", "precio": 15}
 ]
