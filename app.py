@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file
 from reportlab.pdfgen import canvas
 from io import BytesIO
-from flask import send_file
 import json
 
 app = Flask(__name__)
@@ -10,7 +9,7 @@ ARCHIVO_PRODUCTOS = "productos.json"
 
 # Lista inicial de productos (se usa si no hay archivo JSON)
 productos_inicial = [
- # Bebidas
+    # Bebidas
     {"id": 1, "nombre": "Boing 500ml", "precio": 15, "categoria": "Bebidas"},
     {"id": 2, "nombre": "Boing 250ml", "precio": 9, "categoria": "Bebidas"},
     {"id": 3, "nombre": "Naranjada 600ml", "precio": 18, "categoria": "Bebidas"},
@@ -134,7 +133,7 @@ def actualizar(id_producto):
 
 @app.route('/generar_pdf')
 def generar_pdf():
-    productos = producto.query.all()
+    lista_productos = cargar_productos()  # Usamos la lista desde el JSON
 
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer)
@@ -145,8 +144,8 @@ def generar_pdf():
 
     y = 770
     pdf.setFont("Helvetica", 12)
-    for producto in productos:
-        linea = f"{producto.nombre} - ${producto.precio:.2f} - {producto.categoria}"
+    for producto in lista_productos:
+        linea = f"{producto['nombre']} - ${producto['precio']:.2f} - {producto['categoria']}"
         pdf.drawString(50, y, linea)
         y -= 20
         if y < 50:
@@ -157,6 +156,10 @@ def generar_pdf():
     buffer.seek(0)
     
     return send_file(buffer, as_attachment=True, download_name="lista_productos.pdf", mimetype='application/pdf')
+
+@app.route('/salir')
+def salir():
+    return redirect(url_for('lista_productos'))
 
 if __name__ == '__main__':
     app.run(debug=True)
