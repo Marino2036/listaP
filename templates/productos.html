@@ -13,28 +13,48 @@
             display: none;
             margin-top: 10px;
         }
-        /* Estilo del menú hamburguesa */
         .menu-button {
             font-size: 24px;
             background: none;
             border: none;
             cursor: pointer;
         }
+        .menu-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
         #menu {
             display: none;
             position: absolute;
             top: 50px;
-            left: 10px;
+            right: 10px;
             background: #f0f0f0;
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
         #menu a {
             text-decoration: none;
             color: #333;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 14px;
+            color: #888;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+        .header img {
+            height: 50px;
+            margin-right: 10px;
         }
     </style>
     <script>
@@ -51,28 +71,41 @@
             const menu = document.getElementById('menu');
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
+
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('menu');
+            const button = document.querySelector('.menu-button');
+            if (!menu.contains(event.target) && !button.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
     </script>
 </head>
 <body>
-    <!-- Botón de menú hamburguesa -->
-    <div style="position: absolute; top: 10px; left: 10px;">
+
+    <!-- Menú desplegable a la derecha -->
+    <div class="menu-container">
         <button class="menu-button" onclick="toggleMenu()">☰</button>
+        <div id="menu">
+            <a href="/generar_pdf" target="_blank">📄 Generar PDF</a>
+            <a href="/">🔄 Volver al inicio</a>
+            <a href="/salir">❌ Salir</a>
+        </div>
     </div>
 
-    <!-- Menú desplegable -->
-    <div id="menu">
-        <a href="/generar_pdf" target="_blank">📄 Generar PDF</a>
+    <!-- Logo y título -->
+    <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        <h1>Lista de Productos</h1>
     </div>
 
-    <h1 style="margin-left: 10px;">Lista de Productos</h1>
-
-    <!-- Buscar -->
+    <!-- Buscar producto -->
     <form method="get" action="/" style="margin-left: 10px;">
         <input type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
     </form>
 
-    <!-- Agregar producto nuevo -->
+    <!-- Agregar producto -->
     <h2 style="margin-left: 10px;">Agregar producto nuevo</h2>
     <form method="post" action="/agregar" style="margin-left: 10px;">
         <input type="text" name="nombre" placeholder="Nombre" required>
@@ -100,5 +133,11 @@
             </li>
         {% endfor %}
     </ul>
+
+    <!-- Pie de página -->
+    <footer>
+        Desarrollado por <strong>MBP</strong>
+    </footer>
+
 </body>
 </html>
