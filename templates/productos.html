@@ -1,143 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <title>Lista de Productos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px 20px;
+        }
+        header img {
+            height: 60px;
+        }
+        nav a {
+            margin-left: 15px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #333;
+        }
+        main {
+            padding: 20px;
+        }
         form { margin-bottom: 20px; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin-bottom: 10px; }
-        input[type="text"], input[type="number"] { padding: 5px; }
-        button { padding: 5px 10px; }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 5px 10px;
+        }
+        ul { list-style: none; padding: 0; }
+        li {
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
         .edit-section {
             display: none;
             margin-top: 10px;
         }
-        .menu-button {
-            font-size: 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .menu-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        #menu {
-            display: none;
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-        #menu a {
-            text-decoration: none;
-            color: #333;
-            display: block;
-            margin-bottom: 8px;
-        }
         footer {
             text-align: center;
-            margin-top: 50px;
-            font-size: 14px;
-            color: #888;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            margin-left: 10px;
-        }
-        .header img {
-            height: 50px;
-            margin-right: 10px;
+            padding: 10px;
+            color: gray;
+            font-size: 0.9em;
         }
     </style>
     <script>
         function toggleEdit(id) {
-            const editSection = document.getElementById('edit-section-' + id);
-            if (editSection.style.display === 'none' || editSection.style.display === '') {
-                editSection.style.display = 'block';
-            } else {
-                editSection.style.display = 'none';
-            }
+            const section = document.getElementById("edit-section-" + id);
+            section.style.display = section.style.display === "block" ? "none" : "block";
         }
-
-        function toggleMenu() {
-            const menu = document.getElementById('menu');
-            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-        }
-
-        document.addEventListener('click', function (event) {
-            const menu = document.getElementById('menu');
-            const button = document.querySelector('.menu-button');
-            if (!menu.contains(event.target) && !button.contains(event.target)) {
-                menu.style.display = 'none';
-            }
-        });
     </script>
 </head>
 <body>
 
-    <!-- Menú desplegable a la derecha -->
-    <div class="menu-container">
-        <button class="menu-button" onclick="toggleMenu()">☰</button>
-        <div id="menu">
-            <a href="/generar_pdf" target="_blank">📄 Generar PDF</a>
-            <a href="/">🔄 Volver al inicio</a>
-            <a href="/salir">❌ Salir</a>
-        </div>
-    </div>
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo de la tienda">
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/pdf">Generar PDF</a>
+    </nav>
+</header>
 
-    <!-- Logo y título -->
-    <div class="header">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-        <h1>Lista de Productos</h1>
-    </div>
+<main>
+    <h1>Lista de Productos</h1>
 
-    <!-- Buscar producto -->
-    <form method="get" action="/" style="margin-left: 10px;">
+    <form method="get" action="/">
         <input type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
     </form>
 
-    <!-- Agregar producto -->
-    <h2 style="margin-left: 10px;">Agregar producto nuevo</h2>
-    <form method="post" action="/agregar" style="margin-left: 10px;">
+    <h2>Agregar producto nuevo</h2>
+    <form method="post" action="/agregar">
         <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="number" name="precio" placeholder="Precio" min="0" step="0.01" required>
+        <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
         <input type="text" name="categoria" placeholder="Categoría" required>
         <button type="submit">Agregar</button>
     </form>
 
-    <!-- Lista productos -->
-    <ul style="margin-left: 10px;">
+    <ul>
         {% for producto in productos %}
             <li>
                 <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
-                <button onclick="toggleEdit({{ producto.id }})" style="margin-left:20px;">Editar</button>
+                <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
 
-                <div id="edit-section-{{ producto.id }}" class="edit-section">
-                    <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline-block; margin-right:10px;">
+                <div class="edit-section" id="edit-section-{{ producto.id }}">
+                    <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
                         <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
                         <button type="submit">Actualizar</button>
                     </form>
-                    <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline-block;">
-                        <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este producto?')">Eliminar</button>
+                    <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
+                        <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
                     </form>
                 </div>
             </li>
         {% endfor %}
     </ul>
+</main>
 
-    <!-- Pie de página -->
-    <footer>
-        Desarrollado por <strong>MBP</strong>
-    </footer>
+<footer>
+    Autor: MBP
+</footer>
 
 </body>
 </html>
