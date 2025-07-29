@@ -7,16 +7,67 @@ ARCHIVO_PRODUCTOS = "productos.json"
 
 # Lista inicial de productos (se usa si no hay archivo JSON)
 productos_inicial = [
-    # (tu lista completa aquí, igual que en el código que enviaste)
-    {"id": 1, "nombre": "Boing 500ml", "precio": 10, "categoria": "Bebidas"},
-    {"id": 2, "nombre": "Boing 250ml", "precio": 8, "categoria": "Bebidas"},
-    {"id": 3, "nombre": "Naranjada 600ml", "precio": 12, "categoria": "Bebidas"},
-    {"id": 4, "nombre": "Leche Lala 1L", "precio": 24, "categoria": "Bebidas"},
-    {"id": 5, "nombre": "Refresco Coca-Cola 2L", "precio": 38, "categoria": "Bebidas"},
-    {"id": 6, "nombre": "Red Cola 2L", "precio": 22, "categoria": "Bebidas"},
-    {"id": 7, "nombre": "Agua Bonafont 1.5L", "precio": 15, "categoria": "Bebidas"},
-    {"id": 8, "nombre": "Jumex lata", "precio": 10, "categoria": "Bebidas"},
-    # ... sigue toda la lista ...
+ # Bebidas
+    {"id": 1, "nombre": "Boing 500ml", "precio": 15, "categoria": "Bebidas"},
+    {"id": 2, "nombre": "Boing 250ml", "precio": 9, "categoria": "Bebidas"},
+    {"id": 3, "nombre": "Naranjada 600ml", "precio": 18, "categoria": "Bebidas"},
+    {"id": 4, "nombre": "Leche Lala 1L", "precio": 30, "categoria": "Bebidas"},
+    {"id": 5, "nombre": "Refresco Coca-Cola 2L retornable", "precio": 34, "categoria": "Bebidas"},
+    {"id": 6, "nombre": "Red Cola 2L", "precio": 24, "categoria": "Bebidas"},
+    {"id": 7, "nombre": "Agua Bonafont 1.5L", "precio": 16, "categoria": "Bebidas"},
+    {"id": 8, "nombre": "Coca cola 3L retornable", "precio": 38, "categoria": "Bebidas"},
+
+    # Alimentos básicos
+    {"id": 9, "nombre": "Arroz (1 kg)", "precio": 24, "categoria": "Alimentos básicos"},
+    {"id": 10, "nombre": "Frijol negro san luis (1 kg)", "precio": 36, "categoria": "Alimentos básicos"},
+    {"id": 11, "nombre": "Azúcar (1 kg)", "precio": 24, "categoria": "Alimentos básicos"},
+    {"id": 12, "nombre": "Sal (1 kg)", "precio": 22, "categoria": "Alimentos básicos"},
+    {"id": 13, "nombre": "Aceite Nutrioli 1L", "precio": 45, "categoria": "Alimentos básicos"},
+    {"id": 14, "nombre": "Harina de trigo (1 kg)", "precio": 20, "categoria": "Alimentos básicos"},
+    {"id": 15, "nombre": "Pasta para sopa (200 g)", "precio": 8, "categoria": "Alimentos básicos"},
+    {"id": 16, "nombre": "Lentejas (250 g)", "precio": 10, "categoria": "Alimentos básicos"},
+    {"id": 17, "nombre": "avena (1 kg)", "precio": 16, "categoria": "Alimentos básicos"},
+
+    # Panadería
+    {"id": 18, "nombre": "Tortillas (1 kg)", "precio": 22, "categoria": "Panadería"},
+    {"id": 19, "nombre": "Bolillo (pieza)", "precio": 3, "categoria": "Panadería"},
+    {"id": 20, "nombre": "Pan dulce (pieza)", "precio": 10, "categoria": "Panadería"},
+    {"id": 21, "nombre": "Pan Bimbo chico", "precio": 38, "categoria": "Panadería"},
+
+    # Botanas y dulces
+    {"id": 22, "nombre": "Sabritas 45g", "precio": 20, "categoria": "Botanas y dulces"},
+    {"id": 23, "nombre": "Takis fuego 45g", "precio": 18, "categoria": "Botanas y dulces"},
+    {"id": 24, "nombre": "Galletas Emperador", "precio": 20, "categoria": "Botanas y dulces"},
+    {"id": 25, "nombre": "Chicles Trident", "precio": 3.5, "categoria": "Botanas y dulces"},
+    {"id": 26, "nombre": "Chocolates Carlos V grande", "precio": 10, "categoria": "Botanas y dulces"},
+    {"id": 27, "nombre": "Paleta Payaso", "precio": 17, "categoria": "Botanas y dulces"},
+    {"id": 28, "nombre": "Gomitas Panditas", "precio": 17, "categoria": "Botanas y dulces"},
+
+    # Conservas y salsas
+    {"id": 29, "nombre": "Salsa Valentina amarilla", "precio": 18, "categoria": "Conservas y salsas"},
+    {"id": 30, "nombre": "Chiles jalapeños la costaña chica (lata)", "precio": 10, "categoria": "Conservas y salsas"},
+    {"id": 31, "nombre": "Atún en agua (lata)", "precio": 21, "categoria": "Conservas y salsas"},
+    {"id": 32, "nombre": "Sardinas en tomate (lata)", "precio": 40, "categoria": "Conservas y salsas"},
+    {"id": 33, "nombre": "Puré de tomate chica", "precio": 12, "categoria": "Conservas y salsas"},
+
+    # Limpieza e higiene
+    {"id": 34, "nombre": "Jabón Zote grande", "precio": 12, "categoria": "Limpieza e higiene"},
+    {"id": 35, "nombre": "Papel higiénico vogue(4 rollos)", "precio": 30, "categoria": "Limpieza e higiene"},
+    {"id": 36, "nombre": "Shampoo sabile sobre", "precio":  4, "categoria": "Limpieza e higiene"},
+    {"id": 37, "nombre": "pasta dental Colgate", "precio": 20, "categoria": "Limpieza e higiene"},
+    {"id": 38, "nombre": "Cloro patitos (1 L)", "precio": 15, "categoria": "Limpieza e higiene"},
+    {"id": 39, "nombre": "Detergente en polvo roma (500 g)", "precio": 22, "categoria": "Limpieza e higiene"},
+
+    # Otros
+    {"id": 40, "nombre": "Huevos (kilo)", "precio": 46, "categoria": "Otros"},
+    {"id": 41, "nombre": "minino (1 kg)", "precio": 44, "categoria": "alimentos mascotas"},
+    {"id": 42, "nombre": "Veladora papel", "precio": 20, "categoria": "Otros"},
+    {"id": 43, "nombre": "Pilas AA (par)", "precio": 6, "categoria": "Otros"},
+    {"id": 44, "nombre": "maizana natural (cajita)", "precio": 10, "categoria": "Otros"},
+    {"id": 45, "nombre": "bolis", "precio": 12, "categoria": "congeladas"},
+    {"id": 46, "nombre": "pure de tomate grande ", "precio": 15, "categoria": "Otros"},
+    {"id": 47, "nombre": "knorr suiza (cajita)", "precio": 6, "categoria": "Otros"},
+    {"id": 48, "nombre": "nescafe chico (unidad)", "precio": 11, "categoria": "Otros"},
 ]
 
 # Funciones para manejar productos y persistencia
