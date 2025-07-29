@@ -64,7 +64,7 @@
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo de la tienda">
     <nav>
         <a href="/">Inicio</a>
-        <a href="/pdf">Generar PDF</a>
+        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
     </nav>
 </header>
 
