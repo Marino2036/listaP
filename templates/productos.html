@@ -15,7 +15,8 @@
         }
     </style>
     <script>
-        function toggleEdit(id) {
+        function toggleEdit(button) {
+            const id = button.getAttribute('data-id');
             const editSection = document.getElementById('edit-section-' + id);
             if (editSection.style.display === 'none' || editSection.style.display === '') {
                 editSection.style.display = 'block';
@@ -48,8 +49,7 @@
         {% for producto in productos %}
             <li>
                 <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
-              <button type="button" data-id="{{ producto.id }}" onclick="toggleEdit(this)" style="margin-left:20px;">Editar</button>
-
+                <button type="button" data-id="{{ producto.id }}" onclick="toggleEdit(this)" style="margin-left:20px;">Editar</button>
 
                 <div id="edit-section-{{ producto.id }}" class="edit-section">
                     <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline-block; margin-right:10px;">
