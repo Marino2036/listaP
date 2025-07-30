@@ -36,27 +36,27 @@
             margin-top: 10px;
         }
 
-        #formularioBusqueda {
+        form {
             margin: 20px auto;
             max-width: 600px;
             display: flex;
             gap: 10px;
         }
 
-        #formularioBusqueda input[type="text"] {
+        input[type="text"] {
             flex: 1;
             padding: 10px;
             font-size: 1em;
         }
 
-        .mic-btn {
+        button, .mic-btn {
             background-color: #007BFF;
             color: white;
             border: none;
             padding: 10px 14px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1.1em;
+            font-size: 1em;
             transition: background-color 0.3s;
         }
 
@@ -87,11 +87,37 @@
             background-color: #f2f2f2;
         }
 
+        .acciones a {
+            margin-right: 10px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
         footer {
             text-align: center;
             margin-top: 40px;
             font-style: italic;
             color: #555;
+        }
+
+        .top-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .top-buttons a {
+            background-color: #28a745;
+            padding: 10px 14px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .top-buttons a:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -102,7 +128,8 @@
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" id="logo">
         </div>
         <nav>
-            <a href="/">Volver al inicio</a>
+            <a href="/">Inicio</a>
+            <a href="/agregar">Agregar producto</a>
         </nav>
     </header>
 
@@ -110,12 +137,17 @@
 
     <form id="formularioBusqueda" method="GET" action="/">
         <input type="text" id="busqueda" name="busqueda" placeholder="Buscar producto...">
+        <button type="submit" title="Buscar por texto">Buscar</button>
         <button type="button" id="micButton" onclick="iniciarBusquedaPorVoz()" class="mic-btn" title="Buscar por voz">
             <i class="fas fa-microphone"></i>
         </button>
     </form>
 
     <div id="mensajeEscuchando">🎤 Escuchando...</div>
+
+    <div class="top-buttons">
+        <a href="/generar_pdf" target="_blank"><i class="fas fa-file-pdf"></i> Generar PDF</a>
+    </div>
 
     <table>
         <thead>
@@ -132,9 +164,11 @@
                 <td>{{ producto.nombre }}</td>
                 <td>${{ "%.2f"|format(producto.precio) }}</td>
                 <td>{{ producto.categoria }}</td>
-                <td>
-                    <a href="/editar/{{ producto.id }}">Editar</a> |
-                    <a href="/eliminar/{{ producto.id }}" onclick="return confirm('¿Estás seguro?')">Eliminar</a>
+                <td class="acciones">
+                    <a href="/editar/{{ producto.id }}"><i class="fas fa-edit"></i> Editar</a>
+                    <a href="/eliminar/{{ producto.id }}" onclick="return confirm('¿Estás seguro de eliminar este producto?')">
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </a>
                 </td>
             </tr>
             {% endfor %}
