@@ -3,169 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <title>Lista de Productos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .camara-container {
-            display: none;
-            margin-top: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            margin: 0; padding: 0;
         }
-        .logo {
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header img {
             height: 60px;
         }
+        nav a, nav button {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        nav button:hover, nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #b30000;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .edit-section {
+            display: none;
+            margin-top: 10px;
+        }
+        .mic-btn {
+            background-color: #28a745;
+            margin-left: 5px;
+        }
+        .mic-btn:hover {
+            background-color: #218838;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            color: gray;
+            font-size: 0.9em;
+        }
+        #reader, #reader-agregar, .reader-editar {
+            width: 320px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
     </style>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
-<body class="bg-light">
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <img src="{{ url_for('static', filename='logo.png') }}" class="logo" alt="Logo">
-            <h1 class="text-primary">Lista de Productos</h1>
-            <a href="/pdf" class="btn btn-outline-danger">Descargar PDF</a>
-        </div>
+<body>
 
-        <!-- Menú desplegable por categoría -->
-        <div class="mb-3">
-            <label for="categoria" class="form-label">Filtrar por categoría:</label>
-            <select id="categoria" class="form-select" onchange="filtrarCategoria()">
-                <option value="Todas">Todas</option>
-                {% for categoria in categorias %}
-                <option value="{{ categoria }}">{{ categoria }}</option>
-                {% endfor %}
-            </select>
-        </div>
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
+        <button onclick="mostrarModal()">➕ Agregar producto</button>
+    </nav>
+</header>
 
-        <!-- Buscar producto -->
-        <div class="mb-3">
-            <input type="text" id="busqueda" class="form-control" onkeyup="buscarProducto()" placeholder="Buscar producto...">
-        </div>
+<main>
+    <h1>Lista de Productos</h1>
 
-        <!-- Botón para encender/apagar cámara -->
-        <div class="mb-3">
-            <button class="btn btn-success" onclick="toggleCamara()">📷 Escanear Código de Barras</button>
-        </div>
+    <form method="get" action="/buscar">
+        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ request.args.get('q', '') }}">
+        <button type="submit">Buscar</button>
+        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
+    </form>
 
-        <!-- Escáner de código de barras -->
-        <div class="camara-container" id="camara-container">
-            <div id="reader" style="width: 300px;"></div>
-            <button class="btn btn-secondary mt-2" onclick="detenerCamara()">❌ Apagar Cámara</button>
-        </div>
+    <h2>Escanear código de barras</h2>
+    <div id="reader"></div>
+    <button type="button" onclick="startScanner('reader', 'busqueda', this)">Iniciar Escáner</button>
+    <button type="button" onclick="toggleFlash()">Activar/Desactivar Flash</button>
 
-        <!-- Lista de productos -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover" id="tabla-productos">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th>Categoría</th>
-                        <th>Código de Barras</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    <tr data-categoria="{{ producto.categoria }}">
-                        <td>{{ producto.nombre }}</td>
-                        <td>${{ producto.precio }}</td>
-                        <td>{{ producto.categoria }}</td>
-                        <td>{{ producto.codigo_barras or '' }}</td>
-                        <td>
-                            <a href="/editar/{{ producto.id }}" class="btn btn-sm btn-warning">Editar</a>
-                            <a href="/eliminar/{{ producto.id }}" class="btn btn-sm btn-danger">Eliminar</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Código de Barras</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>{{ producto.codigo }}</td>
+                    <td>
+                        <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
+                        <div class="edit-section" id="edit-section-{{ producto.id }}">
+                            <form method="post" action="/editar/{{ producto.id }}" style="margin-bottom: 10px;">
+                                <input type="text" name="nombre" value="{{ producto.nombre }}" required>
+                                <input type="number" name="precio" value="{{ producto.precio }}" min="0" step="0.01" required>
+                                <input type="text" name="categoria" value="{{ producto.categoria }}" required>
+                                <input type="text" name="codigo" id="codigo-editar-{{ producto.id }}" value="{{ producto.codigo }}" placeholder="Código de barras">
+                                <button type="button" onclick="startScanner('reader-editar-{{ producto.id }}', 'codigo-editar-{{ producto.id }}', this)">📷 Escanear código</button>
+                                <button type="submit">Guardar</button>
+                            </form>
+                            <div id="reader-editar-{{ producto.id }}" class="reader-editar"></div>
+                            <form method="get" action="/eliminar/{{ producto.id }}" onsubmit="return confirm('¿Eliminar este producto?');">
+                                <button type="submit">Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
 
-        <!-- Agregar producto -->
-        <hr>
-        <h3>Agregar Producto</h3>
-        <form action="/agregar" method="post">
-            <div class="mb-3">
-                <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
-            </div>
-            <div class="mb-3">
-                <input type="number" name="precio" class="form-control" placeholder="Precio" required>
-            </div>
-            <div class="mb-3">
-                <input type="text" name="categoria" class="form-control" placeholder="Categoría" required>
-            </div>
-            <div class="mb-3">
-                <input type="text" name="codigo_barras" class="form-control" placeholder="Código de Barras (opcional)">
-            </div>
-            <button type="submit" class="btn btn-primary">Agregar</button>
-        </form>
-    </div>
-
-    <script>
-        function filtrarCategoria() {
-            const categoria = document.getElementById("categoria").value;
-            const filas = document.querySelectorAll("#tabla-productos tbody tr");
-
-            filas.forEach(fila => {
-                const cat = fila.getAttribute("data-categoria");
-                fila.style.display = (categoria === "Todas" || cat === categoria) ? "" : "none";
-            });
-        }
-
-        function buscarProducto() {
-            const texto = document.getElementById("busqueda").value.toLowerCase();
-            const filas = document.querySelectorAll("#tabla-productos tbody tr");
-
-            filas.forEach(fila => {
-                const contenido = fila.textContent.toLowerCase();
-                fila.style.display = contenido.includes(texto) ? "" : "none";
-            });
-        }
-
-        let scanner = null;
-        let camaraActiva = false;
-
-        function toggleCamara() {
-            if (camaraActiva) {
-                detenerCamara();
-            } else {
-                iniciarCamara();
-            }
-        }
-
-        function iniciarCamara() {
-            document.getElementById("camara-container").style.display = "block";
-            scanner = new Html5Qrcode("reader");
-            scanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
-                (decodedText, decodedResult) => {
-                    document.getElementById("busqueda").value = decodedText;
-                    buscarProducto();
-                    detenerCamara();
-                },
-                (errorMessage) => {
-                    // console.log(`Error escaneando: ${errorMessage}`);
-                }
-            ).then(() => {
-                camaraActiva = true;
-            }).catch(err => {
-                console.error("Error al iniciar cámara:", err);
-            });
-        }
-
-        function detenerCamara() {
-            if (scanner) {
-                scanner.stop().then(() => {
-                    scanner.clear();
-                    document.getElementById("camara-container").style.display = "none";
-                    camaraActiva = false;
-                }).catch(err => {
-                    console.error("Error al detener cámara:", err);
-                });
-            }
-        }
-    </script>
-</body>
-</html>
+<!-- Modal Agregar -->
+<div id="modal-agregar" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Agregar producto nuevo</h2>
+        <form method="post" action="/agregar">
+            <input type="text" name="nombre" placeholder="Nombre" required>
+            <input type="

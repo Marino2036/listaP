@@ -1,15 +1,12 @@
 from flask import Flask, render_template, request, redirect, send_file
 import json
 from reportlab.pdfgen import canvas
-from datetime import datetime
 import os
 
 app = Flask(__name__)
 
-# Archivo JSON con datos
 DB_FILE = 'productos.json'
 
-# Datos iniciales si el archivo no existe
 datos_iniciales = [
     {"id": 1, "nombre": "Nutri leche entera 1L", "precio": 22, "categoria": "lacteos", "codigo": ""},
     {"id": 2, "nombre": "Leche lala entera", "precio": 29, "categoria": "lacteos", "codigo": ""},
@@ -25,18 +22,17 @@ datos_iniciales = [
     {"id": 12, "nombre": "tang", "precio": 6, "categoria": "polvo/agua", "codigo": ""},
 ]
 
-# Cargar o inicializar archivo JSON
 if not os.path.exists(DB_FILE):
-    with open(DB_FILE, 'w') as f:
-        json.dump(datos_iniciales, f)
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(datos_iniciales, f, indent=4, ensure_ascii=False)
 
 def cargar_productos():
-    with open(DB_FILE, 'r') as f:
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def guardar_productos(productos):
-    with open(DB_FILE, 'w') as f:
-        json.dump(productos, f, indent=4)
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(productos, f, indent=4, ensure_ascii=False)
 
 @app.route('/')
 def index():
