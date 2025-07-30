@@ -5,85 +5,111 @@
     <title>Lista de Productos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f6f8fa;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #343a40;
-            color: white;
-            padding: 10px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header img {
-            height: 60px;
-        }
-        nav a {
-            color: white;
-            margin-left: 15px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        main {
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        input[type="text"], input[type="number"] {
-            padding: 8px;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        .edit-section {
-            display: none;
-            margin-top: 10px;
-        }
-        .mic-btn {
-            background-color: #28a745;
-            margin-left: 5px;
-        }
-        .mic-btn:hover {
-            background-color: #218838;
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
-            color: gray;
-            font-size: 0.9em;
-        }
-    </style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #343a40;
+        color: white;
+        padding: 10px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    header img {
+        height: 60px;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: bold;
+    }
+
+    .container {
+        padding: 20px;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        margin-right: 5px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .form-control {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-bar input[type="text"] {
+        flex: 1;
+    }
+
+    .icono-mic {
+        background-color: #28a745;
+        border-radius: 50%;
+        padding: 10px;
+        cursor: pointer;
+        color: white;
+        font-size: 18px;
+    }
+
+    .icono-mic:hover {
+        background-color: #218838;
+    }
+</style>
     <script>
         function toggleEdit(id) {
             const section = document.getElementById("edit-section-" + id);
