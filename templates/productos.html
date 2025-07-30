@@ -1,91 +1,171 @@
-// Abrir y cerrar modal
-const modal = document.getElementById("modal");
-document.getElementById("abrirModal").onclick = () => modal.style.display = "block";
-document.getElementById("cerrarModal").onclick = () => modal.style.display = "none";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Productos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header img {
+            height: 60px;
+        }
+        nav a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        main {
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .edit-section {
+            display: none;
+            margin-top: 10px;
+        }
+        .mic-btn {
+            background-color: #28a745;
+            margin-left: 5px;
+        }
+        .mic-btn:hover {
+            background-color: #218838;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            color: gray;
+            font-size: 0.9em;
+        }
+    </style>
+    <script>
+        function toggleEdit(id) {
+            const section = document.getElementById("edit-section-" + id);
+            section.style.display = section.style.display === "block" ? "none" : "block";
+        }
 
-// Simulación guardar producto
-document.getElementById("formulario").onsubmit = function (e) {
-  e.preventDefault();
-  const nombre = document.getElementById("nombre").value;
-  const precio = document.getElementById("precio").value;
-  const categoria = document.getElementById("categoria").value;
-  const codigo = document.getElementById("codigo").value;
+        function iniciarReconocimiento() {
+            const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            reconocimiento.lang = 'es-ES';
 
-  const tr = document.createElement("tr");
-  tr.innerHTML = `<td>${nombre}</td><td>$${precio}</td><td>${categoria}</td><td><a href="#">Editar</a></td>`;
-  document.getElementById("tablaProductos").appendChild(tr);
+            reconocimiento.onresult = function(event) {
+                const resultado = event.results[0][0].transcript;
+                document.getElementById('busqueda').value = resultado;
+            };
 
-  modal.style.display = "none";
-  this.reset();
-};
+            reconocimiento.start();
+        }
+    </script>
+</head>
+<body>
 
-// Buscar producto (básico)
-function buscarProducto() {
-  const texto = document.getElementById("busqueda").value.toLowerCase();
-  const filas = document.querySelectorAll("#tablaProductos tr");
-  filas.forEach(fila => {
-    fila.style.display = fila.innerText.toLowerCase().includes(texto) ? "" : "none";
-  });
-}
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
+    </nav>
+</header>
 
-// Escanear en pantalla principal
-function iniciarEscaner() {
-  const video = document.getElementById("video");
-  video.style.display = "block";
+<main>
+    <h1>Lista de Productos</h1>
 
-  if (!('BarcodeDetector' in window)) {
-    alert("BarcodeDetector no soportado");
-    return;
-  }
+    <form method="get" action="/">
+        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
+        <button type="submit">Buscar</button>
+        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
+    </form>
 
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-    .then(stream => {
-      video.srcObject = stream;
-      const detector = new BarcodeDetector({ formats: ['ean_13', 'code_128', 'upc_a'] });
+    <h2>Agregar producto nuevo</h2>
+    <form method="post" action="/agregar">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
+        <input type="text" name="categoria" placeholder="Categoría" required>
+        <button type="submit">Agregar</button>
+    </form>
 
-      const scan = () => {
-        detector.detect(video)
-          .then(codes => {
-            if (codes.length > 0) {
-              alert("Código detectado: " + codes[0].rawValue);
-              stream.getTracks().forEach(track => track.stop());
-              video.style.display = "none";
-            } else {
-              requestAnimationFrame(scan);
-            }
-          });
-      };
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>
+                        <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
+                        <div class="edit-section" id="edit-section-{{ producto.id }}">
+                            <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
+                                <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
+                                <button type="submit">Actualizar</button>
+                            </form>
+                            <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
+                                <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
 
-      scan();
-    });
-}
+<footer>
+    Autor: MBP
+</footer>
 
-// Escanear desde modal
-function escanearDesdeModal() {
-  if (!('BarcodeDetector' in window)) {
-    alert("Tu navegador no soporta BarcodeDetector.");
-    return;
-  }
-
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-    .then(stream => {
-      const video = document.createElement("video");
-      video.setAttribute("playsinline", true);
-      video.srcObject = stream;
-      video.play();
-
-      const detector = new BarcodeDetector();
-      const escanear = () => {
-        detector.detect(video)
-          .then(codes => {
-            if (codes.length > 0) {
-              document.getElementById("codigo").value = codes[0].rawValue;
-              stream.getTracks().forEach(t => t.stop());
-            } else {
-              requestAnimationFrame(escanear);
-            }
-          });
-      };
-      escanear();
-    });
-}
+</body>
+</html>
