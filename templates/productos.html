@@ -83,15 +83,13 @@
             color: gray;
             font-size: 0.9em;
         }
-        /* Estilo para el área del escáner */
-        #reader {
+        #reader, #reader-agregar {
             width: 320px;
             margin-top: 10px;
             margin-bottom: 20px;
         }
     </style>
 
-    <!-- Librería para escanear código de barras con cámara -->
     <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 
     <script>
@@ -112,7 +110,6 @@
             reconocimiento.start();
         }
 
-        // Función para iniciar el escáner de código de barras
         function startScanner() {
             const html5QrCode = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: 250 };
@@ -121,20 +118,35 @@
                 { facingMode: "environment" },
                 config,
                 qrCodeMessage => {
-                    console.log("Código detectado: " + qrCodeMessage);
-                    // Poner el código detectado en el input de búsqueda
                     document.getElementById('busqueda').value = qrCodeMessage;
-                    // Detener el escáner
                     html5QrCode.stop().then(() => {
-                        // Enviar el formulario de búsqueda automáticamente
                         document.forms[0].submit();
                     }).catch(err => {
                         console.error("Error al detener el escáner", err);
                     });
                 },
-                errorMessage => {
-                    // console.log("Error de escaneo (puede ignorarse): ", errorMessage);
-                }
+                errorMessage => {}
+            ).catch(err => {
+                console.error("No se pudo iniciar el escáner", err);
+            });
+        }
+
+        function startAddScanner() {
+            const html5QrCode = new Html5Qrcode("reader-agregar");
+            const config = { fps: 10, qrbox: 250 };
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeMessage => {
+                    document.getElementById('codigo').value = qrCodeMessage;
+                    html5QrCode.stop().then(() => {
+                        document.getElementById('reader-agregar').innerHTML = "";
+                    }).catch(err => {
+                        console.error("Error al detener escáner", err);
+                    });
+                },
+                errorMessage => {}
             ).catch(err => {
                 console.error("No se pudo iniciar el escáner", err);
             });
@@ -160,7 +172,6 @@
         <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
     </form>
 
-    <!-- Nueva sección para escaneo -->
     <h2>Escanear código de barras</h2>
     <div id="reader"></div>
     <button type="button" onclick="startScanner()">Iniciar Escáner</button>
@@ -170,8 +181,16 @@
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
         <input type="text" name="categoria" placeholder="Categoría" required>
+
+        <!-- Campo para código de barras -->
+        <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
+        <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
+
         <button type="submit">Agregar</button>
     </form>
+
+    <!-- Área del escáner al agregar -->
+    <div id="reader-agregar"></div>
 
     <table>
         <thead>
