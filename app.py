@@ -1,121 +1,109 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
-from reportlab.pdfgen import canvas
-from io import BytesIO
+from flask import Flask, render_template, request, redirect, send_file
 import json
-import unicodedata
+from reportlab.pdfgen import canvas
+from datetime import datetime
+import os
 
 app = Flask(__name__)
 
-ARCHIVO_PRODUCTOS = "productos.json"
+# Archivo JSON con datos
+DB_FILE = 'productos.json'
 
-# Productos iniciales
-productos_inicial = [
-    {"id": 1, "nombre": "Boing 500ml", "precio": 15, "categoria": "Bebidas", "codigo": "7501055301234"},
-    {"id": 2, "nombre": "Boing 250ml", "precio": 9, "categoria": "Bebidas", "codigo": "7501055305678"},
-    {"id": 3, "nombre": "Naranjada 600ml", "precio": 18, "categoria": "Bebidas", "codigo": "7501055309999"},
-    {"id": 4, "nombre": "Frutsi 125ml", "precio": 5, "categoria": "Bebidas", "codigo": "7501055387236"},
+# Datos iniciales si el archivo no existe
+datos_iniciales = [
+    {"id": 1, "nombre": "Nutri leche entera 1L", "precio": 22, "categoria": "lacteos", "codigo": ""},
+    {"id": 2, "nombre": "Leche lala entera", "precio": 29, "categoria": "lacteos", "codigo": ""},
+    {"id": 3, "nombre": "Leche lala deslact", "precio": 30, "categoria": "lacteos", "codigo": ""},
+    {"id": 4, "nombre": "leche alpura clasica ", "precio": 26, "categoria": "lacteos", "codigo": ""},
+    {"id": 5, "nombre": "Leche alpura deslact", "precio": 26, "categoria": "lacteos", "codigo": ""},
+    {"id": 6, "nombre": "Leche santa clara entera ", "precio": 30, "categoria": "lacteos", "codigo": ""},
+    {"id": 7, "nombre": "Leche snta clara deslacto", "precio": 30, "categoria": "lacteos", "codigo": ""},
+    {"id": 8, "nombre": "coffe mate sobre", "precio": 11, "categoria": "leche polvo", "codigo": ""},
+    {"id": 9, "nombre": "cafe legal sobre", "precio": 8, "categoria": "cafe", "codigo": ""},
+    {"id": 10, "nombre": "nescafe sobre grande", "precio": 24, "categoria": "cafe", "codigo": ""},
+    {"id": 11, "nombre": "gelatina polvo D'Gari", "precio": 13, "categoria": "gelatinas", "codigo": ""},
+    {"id": 12, "nombre": "tang", "precio": 6, "categoria": "polvo/agua", "codigo": ""},
 ]
 
-def guardar_productos(productos, archivo=ARCHIVO_PRODUCTOS):
-    with open(archivo, "w", encoding="utf-8") as f:
-        json.dump(productos, f, indent=4, ensure_ascii=False)
+# Cargar o inicializar archivo JSON
+if not os.path.exists(DB_FILE):
+    with open(DB_FILE, 'w') as f:
+        json.dump(datos_iniciales, f)
 
-def cargar_productos(archivo=ARCHIVO_PRODUCTOS):
-    try:
-        with open(archivo, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return productos_inicial.copy()
+def cargar_productos():
+    with open(DB_FILE, 'r') as f:
+        return json.load(f)
 
-def agregar_producto(productos, nombre, precio, categoria, codigo=""):
-    nuevo_id = max([p["id"] for p in productos], default=0) + 1
-    nuevo_producto = {"id": nuevo_id, "nombre": nombre, "precio": precio, "categoria": categoria, "codigo": codigo}
-    productos.append(nuevo_producto)
-    guardar_productos(productos)
-    return nuevo_producto
-
-def eliminar_producto(productos, id_producto):
-    productos[:] = [p for p in productos if p["id"] != id_producto]
-    guardar_productos(productos)
-
-def actualizar_precio(productos, id_producto, nuevo_precio):
-    for p in productos:
-        if p["id"] == id_producto:
-            p["precio"] = nuevo_precio
-            guardar_productos(productos)
-            return True
-    return False
-
-def normalizar(texto):
-    return ''.join(
-        c for c in unicodedata.normalize('NFKD', texto.lower())
-        if not unicodedata.combining(c)
-    )
-
-productos = cargar_productos()
+def guardar_productos(productos):
+    with open(DB_FILE, 'w') as f:
+        json.dump(productos, f, indent=4)
 
 @app.route('/')
-def lista_productos():
-    consulta_original = request.args.get('q', '')
-    consulta = normalizar(consulta_original)
-    if consulta:
-        resultados = [
-            p for p in productos
-            if consulta in normalizar(p['nombre']) 
-            or consulta in normalizar(p.get('codigo', ''))
-        ]
-    else:
-        resultados = productos
-    return render_template('productos.html', productos=resultados, consulta=consulta_original)
+def index():
+    productos = cargar_productos()
+    categorias = sorted(set(p['categoria'] for p in productos))
+    return render_template('productos.html', productos=productos, categorias=categorias)
 
 @app.route('/agregar', methods=['POST'])
 def agregar():
-    nombre = request.form.get('nombre')
-    precio = float(request.form.get('precio'))
-    categoria = request.form.get('categoria')
-    codigo = request.form.get('codigo', '')
-    agregar_producto(productos, nombre, precio, categoria, codigo)
-    return redirect(url_for('lista_productos'))
+    productos = cargar_productos()
+    nuevo = {
+        'id': productos[-1]['id'] + 1 if productos else 1,
+        'nombre': request.form['nombre'],
+        'precio': float(request.form['precio']),
+        'categoria': request.form['categoria'],
+        'codigo': request.form.get('codigo', '')
+    }
+    productos.append(nuevo)
+    guardar_productos(productos)
+    return redirect('/')
 
-@app.route('/eliminar/<int:id_producto>', methods=['POST'])
-def eliminar(id_producto):
-    eliminar_producto(productos, id_producto)
-    return redirect(url_for('lista_productos'))
+@app.route('/buscar')
+def buscar():
+    termino = request.args.get('q', '').lower()
+    productos = cargar_productos()
+    resultados = [p for p in productos if termino in p['nombre'].lower() or termino in p.get('codigo', '')]
+    categorias = sorted(set(p['categoria'] for p in productos))
+    return render_template('productos.html', productos=resultados, categorias=categorias)
 
-@app.route('/actualizar/<int:id_producto>', methods=['POST'])
-def actualizar(id_producto):
-    nuevo_precio = float(request.form.get('precio'))
-    actualizar_precio(productos, id_producto, nuevo_precio)
-    return redirect(url_for('lista_productos'))
+@app.route('/editar/<int:producto_id>', methods=['POST'])
+def editar(producto_id):
+    productos = cargar_productos()
+    for p in productos:
+        if p['id'] == producto_id:
+            p['nombre'] = request.form['nombre']
+            p['precio'] = float(request.form['precio'])
+            p['categoria'] = request.form['categoria']
+            p['codigo'] = request.form.get('codigo', '')
+            break
+    guardar_productos(productos)
+    return redirect('/')
 
-@app.route('/generar_pdf')
+@app.route('/eliminar/<int:producto_id>')
+def eliminar(producto_id):
+    productos = cargar_productos()
+    productos = [p for p in productos if p['id'] != producto_id]
+    guardar_productos(productos)
+    return redirect('/')
+
+@app.route('/pdf')
 def generar_pdf():
-    lista_productos = cargar_productos()
-
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer)
-    pdf.setTitle("Lista de Productos")
-
-    pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(50, 800, "Lista de Productos")
-
-    y = 770
-    pdf.setFont("Helvetica", 12)
-    for producto in lista_productos:
-        codigo = producto.get('codigo', '')
-        linea = f"{producto['nombre']} - ${producto['precio']:.2f} - {producto['categoria']}"
-        if codigo:
-            linea += f" - Código: {codigo}"
-        pdf.drawString(50, y, linea)
+    productos = cargar_productos()
+    nombre_archivo = 'lista_productos.pdf'
+    c = canvas.Canvas(nombre_archivo)
+    c.setFont("Helvetica", 12)
+    y = 800
+    c.drawString(100, y, "Lista de Productos")
+    y -= 20
+    for p in productos:
+        texto = f"{p['id']} - {p['nombre']} - ${p['precio']} - {p['categoria']} - Código: {p.get('codigo', '')}"
+        c.drawString(100, y, texto)
         y -= 20
         if y < 50:
-            pdf.showPage()
+            c.showPage()
             y = 800
-
-    pdf.save()
-    buffer.seek(0)
-    
-    return send_file(buffer, as_attachment=True, download_name="lista_productos.pdf", mimetype='application/pdf')
+    c.save()
+    return send_file(nombre_archivo, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
