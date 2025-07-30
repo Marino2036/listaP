@@ -2,95 +2,94 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Productos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f6f8fa;
             margin: 0;
             padding: 0;
+            background-color: #f8f9fa;
         }
+
         header {
             background-color: #343a40;
             color: white;
-            padding: 10px 30px;
+            padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
             align-items: center;
+            justify-content: space-between;
+            gap: 10px;
         }
+
         header img {
-            height: 60px;
+            height: 50px;
         }
-        nav a, nav button {
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+        }
+
+        nav a {
             color: white;
-            margin-left: 15px;
             text-decoration: none;
             font-weight: bold;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
         }
-        nav button:hover, nav a:hover {
-            text-decoration: underline;
-        }
+
         main {
             padding: 20px;
         }
-        h1, h2 {
-            color: #333;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        input[type="text"], input[type="number"] {
-            padding: 8px;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            min-height: 40px;
-        }
-        button {
-            padding: 10px 14px;
-            font-size: 1rem;
-            min-height: 40px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
+
+        h1 {
+            font-size: 2rem;
         }
 
-        /* Botón especial para escáner */
-        .btn-escaner {
-            background-color: #dc3545;
-            margin: 20px 0;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
+        .search-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .btn-escaner:hover {
-            background-color: #c82333;
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        button {
+            padding: 10px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            min-height: 40px;
         }
 
         .mic-btn {
             background-color: #28a745;
-            margin-left: 5px;
-        }
-        .mic-btn:hover {
-            background-color: #218838;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
 
-        .edit-section {
-            display: none;
-            margin-top: 10px;
+        .btn-escaner {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            padding: 10px 16px;
+            font-weight: bold;
+        }
+
+        .btn-escaner:hover {
+            background-color: #c82333;
         }
 
         .table-container {
@@ -100,224 +99,100 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            min-width: 600px;
+            margin-top: 20px;
         }
+
         th, td {
             padding: 12px;
+            text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #007bff;
             color: white;
         }
 
-        #reader, #reader-agregar {
+        #reader {
             width: 100%;
-            max-width: 320px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            color: gray;
-            font-size: 0.9em;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
-        }
-        .close {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: black;
+            max-width: 400px;
+            margin: 20px 0;
         }
     </style>
-
-    <!-- Librería para escanear código de barras -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
 <body>
+    <header>
+        <img src="/static/logo.png" alt="Logo">
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/generar_pdf">Generar PDF</a>
+            <a href="/crear">➕ Agregar producto</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Lista de Productos</h1>
 
-<header>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-    <nav>
-        <a href="/">Inicio</a>
-        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
-        <button onclick="mostrarModal()">➕ Agregar producto</button>
-    </nav>
-</header>
+        <form method="get" action="/" class="search-bar">
+            <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
+            <button type="submit">Buscar</button>
+            <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
+        </form>
 
-<main>
-    <h1>Lista de Productos</h1>
+        <h2>Escanear código de barras</h2>
+        <button type="button" onclick="startScanner()" class="btn-escaner">Iniciar Escáner</button>
+        <div id="reader"></div>
 
-    <form method="get" action="/">
-        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
-        <button type="submit">Buscar</button>
-        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
-    </form>
-
-    <h2>Escanear código de barras</h2>
-    <div id="reader"></div>
-    <button type="button" onclick="startScanner()" class="btn-escaner">Iniciar Escáner</button>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Precio</th>
-                    <th>Categoría</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in productos %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
                     <tr>
                         <td>{{ producto.nombre }}</td>
                         <td>${{ producto.precio }}</td>
                         <td>{{ producto.categoria }}</td>
-                        <td>
-                            <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
-                            <div class="edit-section" id="edit-section-{{ producto.id }}">
-                                <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
-                                    <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
-                                    <button type="submit">Actualizar</button>
-                                </form>
-                                <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
-                                    <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
-                                </form>
-                            </div>
-                        </td>
+                        <td><a href="/editar/{{ producto.id }}">Editar</a></td>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</main>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
 
-<!-- Modal -->
-<div id="modal-agregar" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="cerrarModal()">&times;</span>
-        <h2>Agregar producto nuevo</h2>
-        <form method="post" action="/agregar">
-            <input type="text" name="nombre" placeholder="Nombre" required>
-            <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
-            <input type="text" name="categoria" placeholder="Categoría" required>
-            <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
-            <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
-            <button type="submit">Agregar</button>
-        </form>
-        <div id="reader-agregar"></div>
-    </div>
-</div>
-
-<footer>
-    Autor: MBP
-</footer>
-
-<script>
-    function toggleEdit(id) {
-        const section = document.getElementById("edit-section-" + id);
-        section.style.display = section.style.display === "block" ? "none" : "block";
-    }
-
-    function iniciarReconocimiento() {
-        const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        reconocimiento.lang = 'es-ES';
-
-        reconocimiento.onresult = function(event) {
-            const resultado = event.results[0][0].transcript;
-            document.getElementById('busqueda').value = resultado;
-        };
-
-        reconocimiento.start();
-    }
-
-    function startScanner() {
-        const html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: 250 };
-
-        html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            qrCodeMessage => {
-                document.getElementById('busqueda').value = qrCodeMessage;
-                html5QrCode.stop().then(() => {
-                    document.forms[0].submit();
-                }).catch(err => {
-                    console.error("Error al detener el escáner", err);
-                });
-            },
-            errorMessage => {}
-        ).catch(err => {
-            console.error("No se pudo iniciar el escáner", err);
-        });
-    }
-
-    function startAddScanner() {
-        const html5QrCode = new Html5Qrcode("reader-agregar");
-        const config = { fps: 10, qrbox: 250 };
-
-        html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            qrCodeMessage => {
-                document.getElementById('codigo').value = qrCodeMessage;
-                html5QrCode.stop().then(() => {
-                    document.getElementById('reader-agregar').innerHTML = "";
-                }).catch(err => {
-                    console.error("Error al detener escáner", err);
-                });
-            },
-            errorMessage => {}
-        ).catch(err => {
-            console.error("No se pudo iniciar el escáner", err);
-        });
-    }
-
-    function mostrarModal() {
-        document.getElementById("modal-agregar").style.display = "block";
-    }
-
-    function cerrarModal() {
-        document.getElementById("modal-agregar").style.display = "none";
-        document.getElementById("reader-agregar").innerHTML = "";
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById("modal-agregar");
-        if (event.target === modal) {
-            cerrarModal();
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        function startScanner() {
+            const scanner = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: 250 };
+            scanner.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText, decodedResult) => {
+                    document.getElementById("busqueda").value = decodedText;
+                    scanner.stop();
+                },
+                (errorMessage) => {
+                    console.warn(errorMessage);
+                }
+            ).catch(err => console.error(err));
         }
-    }
-</script>
 
+        function iniciarReconocimiento() {
+            const reconocimiento = new webkitSpeechRecognition();
+            reconocimiento.lang = "es-ES";
+            reconocimiento.onresult = function(event) {
+                const texto = event.results[0][0].transcript;
+                document.getElementById("busqueda").value = texto;
+            };
+            reconocimiento.start();
+        }
+    </script>
 </body>
 </html>
