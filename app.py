@@ -9,6 +9,7 @@ ARCHIVO_PRODUCTOS = "productos.json"
 
 # Productos iniciales
 productos_inicial = [ 
+
     # Bebidas
     {"id": 1, "nombre": "Boing 500ml", "precio": 15, "categoria": "Bebidas"},
     {"id": 2, "nombre": "Boing 250ml", "precio": 9, "categoria": "Bebidas"},
@@ -24,14 +25,14 @@ productos_inicial = [
     {"id": 10, "nombre": "Frijol negro san luis (1 kg)", "precio": 36, "categoria": "Alimentos básicos"},
     {"id": 11, "nombre": "Azúcar (1 kg)", "precio": 24, "categoria": "Alimentos básicos"},
     {"id": 12, "nombre": "Sal (1 kg)", "precio": 22, "categoria": "Alimentos básicos"},
-    {"id": 13, "nombre": "Aceite Nutrioli 1L", "precio": 45, "categoria": "Alimentos básicos"},
+    {"id": 13, "nombre": "Aceite Nutrioli 1L", "precio": 40, "categoria": "Alimentos básicos"},
     {"id": 14, "nombre": "Harina de trigo (1 kg)", "precio": 20, "categoria": "Alimentos básicos"},
     {"id": 15, "nombre": "Pasta para sopa (200 g)", "precio": 8, "categoria": "Alimentos básicos"},
     {"id": 16, "nombre": "Lentejas (250 g)", "precio": 10, "categoria": "Alimentos básicos"},
     {"id": 17, "nombre": "avena (1 kg)", "precio": 16, "categoria": "Alimentos básicos"},
 
     # Panadería
-    {"id": 18, "nombre": "Tortillas (1 kg)", "precio": 22, "categoria": "Panadería"},
+    {"id": 18, "nombre": "Tortillas (1 kg)", "precio": 18, "categoria": "Panadería"},
     {"id": 19, "nombre": "Bolillo (pieza)", "precio": 3, "categoria": "Panadería"},
     {"id": 20, "nombre": "Pan dulce (pieza)", "precio": 10, "categoria": "Panadería"},
     {"id": 21, "nombre": "Pan Bimbo chico", "precio": 38, "categoria": "Panadería"},
@@ -63,14 +64,61 @@ productos_inicial = [
     # Otros
     {"id": 40, "nombre": "Huevos (kilo)", "precio": 46, "categoria": "Otros"},
     {"id": 41, "nombre": "minino (1 kg)", "precio": 44, "categoria": "alimentos mascotas"},
-    {"id": 42, "nombre": "Veladora papel", "precio": 20, "categoria": "Otros"},
+    {"id": 42, "nombre": "Veladora papel", "precio": 19, "categoria": "Otros"},
     {"id": 43, "nombre": "Pilas AA (par)", "precio": 6, "categoria": "Otros"},
-    {"id": 44, "nombre": "maizana natural (cajita)", "precio": 10, "categoria": "Otros"},
+    {"id": 44, "nombre": "maizena natural (cajita)", "precio": 10, "categoria": "Otros"},
     {"id": 45, "nombre": "bolis", "precio": 12, "categoria": "congeladas"},
     {"id": 46, "nombre": "pure de tomate grande ", "precio": 15, "categoria": "Otros"},
     {"id": 47, "nombre": "knorr suiza (cajita)", "precio": 6, "categoria": "Otros"},
     {"id": 48, "nombre": "nescafe chico (unidad)", "precio": 11, "categoria": "Otros"},
- ]  # Aquí va toda tu lista (como ya está bien, solo pégala completa como antes)
+    #nuevos 
+    {"id": 49, "nombre": "Nutri leche entera", "precio": 22, "categoria": "lacteos"},
+    {"id": 50, "nombre": "Leche lala entera", "precio": 29, "categoria": "lacteos"},
+    {"id": 51, "nombre": "Leche lala deslact", "precio": 30, "categoria": "lacteos"},
+    {"id": 52, "nombre": "leche alpura clasica ", "precio": 26, "categoria": "lacteos"},
+    {"id": 53, "nombre": "Leche alpura deslact", "precio": 26, "categoria": "lacteos"},
+    {"id": 54, "nombre": "Leche santa clara entera ", "precio": 30, "categoria": "lacteos"},
+    {"id": 55, "nombre": "Leche snta clara deslacto", "precio": 30, "categoria": "lacteos"},
+    {"id": 56, "nombre": "coffe mate sobre", "precio": 11, "categoria": "leche polvo"},
+    {"id": 57, "nombre": "cafe legal sobre", "precio": 8, "categoria": "cafe"},
+    {"id": 58, "nombre": "nescafe sobre grande", "precio": 24, "categoria": "cafe"},
+    {"id": 59, "nombre": "gelatina polvo D'Gari", "precio": 13, "categoria": "gelatinas"},
+    {"id": 60, "nombre": "tang", "precio": 6, "categoria": "polvo/agua"},
+    {"id": 61, "nombre": "knor polvo sobre", "precio": 20, "categoria": "sazonadores"},
+    {"id": 62, "nombre": "Riko pollo polvo sobre", "precio": 22, "categoria": "sazonadores"},
+    {"id": 63, "nombre": "Maiz palomero 250g", "precio": 10, "categoria": "botanas"},
+    {"id": 64, "nombre": "Maizena atole", "precio": 00, "categoria": "atoles"},
+    {"id": 65, "nombre": "Royal bote", "precio": 21, "categoria": "panaderia"},
+    {"id": 66, "nombre": "mermelada de fresa", "precio": 30, "categoria": "mermeladas"},
+    {"id": 67, "nombre": "cajeta yupi", "precio": 00, "categoria": "cajeta"},
+    {"id": 68, "nombre": "Isadora negros", "precio": 17, "categoria": "frijoles refritos"},
+    {"id": 69, "nombre": "isadora bayos", "precio": 17, "categoria": "frijoles refritos"},
+    {"id": 70, "nombre": "Chipotles san marcos 215g", "precio": 29, "categoria": "chiles"},
+    {"id": 71, "nombre": "Chipotles san marcos chico", "precio": 17, "categoria": "chiles"},
+    {"id": 72, "nombre": "Rajas la morena", "precio": 16, "categoria": "chiles"},
+    {"id": 73, "nombre": "Enteros la morena", "precio": 14, "categoria": "chiles"},
+    {"id": 74, "nombre": "Chipotles la morena chico", "precio": 17, "categoria": "chiles"},
+    {"id": 75, "nombre": "Chipotles la morena grande", "precio": 32, "categoria": "chiles"},
+    {"id": 76, "nombre": "Chipotles la costeña grande", "precio": 26, "categoria": "chiles"},
+    {"id": 77, "nombre": "Chipotles la morena chico", "precio": 17, "categoria": "chiles"},
+    {"id": 78, "nombre": "Rajas la costeña grande", "precio": 17, "categoria": "chiles"},
+    {"id": 79, "nombre": "Rajas la costeña chico", "precio": 10, "categoria": "chiles"},
+    {"id": 80, "nombre": "Rajas la costeña grande", "precio": 17, "categoria": "chiles"},
+    {"id": 81, "nombre": "champiñones Herdez chico", "precio":  23, "categoria": "latas"},
+    {"id": 82, "nombre": "Elotes Herdez chico", "precio": 15, "categoria": "latas"},
+    {"id": 83, "nombre": "Rajas la costeña grande", "precio": 17, "categoria": "chiles"},
+    {"id": 84, "nombre": "Ensalada de verduras la costeña grande", "precio": 19, "categoria": "latas"},
+    {"id": 85, "nombre": "Ensalada de verduras la costeña chico", "precio": 15, "categoria": "latas"},
+    {"id": 86, "nombre": "Elotes la costeña grande", "precio": 20, "categoria": "latas"},
+    {"id": 87, "nombre": "Elotes la costeña chico", "precio": 13, "categoria": "latas"},
+    {"id": 88, "nombre": "Ensalada de verduras la costeña grande", "precio": 19, "categoria": "latas"},
+    {"id": 89, "nombre": "Frijoles refritos negros costeña", "precio": 18, "categoria": "latas"},
+    {"id": 90, "nombre": "Frijoles refritos bayos costeña", "precio": 18, "categoria": "latas"},
+    {"id": 91, "nombre": "Frijoles enteros negros costeña", "precio": 16, "categoria": "latas"},
+    {"id": 92, "nombre": "Frijoles enteros bayos costeña", "precio": 16, "categoria": "latas"},
+
+
+ ]  
 
 # Manejo de productos
 def guardar_productos(productos, archivo=ARCHIVO_PRODUCTOS):
