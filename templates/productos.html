@@ -118,6 +118,34 @@
             max-width: 400px;
             margin: 20px 0;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .cerrar {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -126,7 +154,7 @@
         <nav>
             <a href="/">Inicio</a>
             <a href="/generar_pdf">Generar PDF</a>
-            <a href="/crear">➕ Agregar producto</a>
+            <a href="#" onclick="abrirModal()">➕ Agregar producto</a>
         </nav>
     </header>
     <main>
@@ -166,6 +194,19 @@
         </div>
     </main>
 
+    <div id="modalAgregar" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" onclick="cerrarModal()">&times;</span>
+            <h2>Agregar Producto</h2>
+            <form action="/crear" method="post">
+                <input type="text" name="nombre" placeholder="Nombre del producto" required>
+                <input type="number" name="precio" placeholder="Precio" required>
+                <input type="text" name="categoria" placeholder="Categoría" required>
+                <button type="submit">Guardar</button>
+            </form>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         function startScanner() {
@@ -192,6 +233,14 @@
                 document.getElementById("busqueda").value = texto;
             };
             reconocimiento.start();
+        }
+
+        function abrirModal() {
+            document.getElementById('modalAgregar').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalAgregar').style.display = 'none';
         }
     </script>
 </body>
