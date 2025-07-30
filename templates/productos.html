@@ -1,168 +1,294 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Productos</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #333;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-    }
-    header img {
-      height: 40px;
-      margin-right: 20px;
-    }
-    header nav a {
-      color: white;
-      margin-right: 15px;
-      text-decoration: none;
-    }
-    .container {
-      padding: 20px;
-    }
-    .btn-agregar {
-      background-color: #444;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      margin-top: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-contenido {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 400px;
-      width: 90%;
-    }
-    .modal-contenido input, .modal-contenido button {
-      width: 100%;
-      margin: 5px 0;
-      padding: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #007bff;
-      color: white;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Lista de Productos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header img {
+            height: 60px;
+        }
+        nav a, nav button {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        nav button:hover, nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .edit-section {
+            display: none;
+            margin-top: 10px;
+        }
+        .mic-btn {
+            background-color: #28a745;
+            margin-left: 5px;
+        }
+        .mic-btn:hover {
+            background-color: #218838;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            color: gray;
+            font-size: 0.9em;
+        }
+        #reader, #reader-agregar {
+            width: 320px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+    </style>
+
+    <!-- Librería para escanear código de barras -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
 <body>
-  <header>
-    <img src="logo.jpg" alt="Logo">
+
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
     <nav>
-      <a href="#">Inicio</a>
-      <a href="#">Generar PDF</a>
+        <a href="/">Inicio</a>
+        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
+        <button onclick="mostrarModal()">➕ Agregar producto</button>
     </nav>
-  </header>
+</header>
 
-  <div class="container">
-    <button class="btn-agregar" onclick="document.getElementById('modal').style.display='flex'">➕ Agregar producto</button>
-
-    <div id="modal" class="modal">
-      <div class="modal-contenido">
-        <span style="float:right;cursor:pointer;font-weight:bold" onclick="document.getElementById('modal').style.display='none'">&times;</span>
-        <h2>Agregar Producto</h2>
-        <form action="/crear" method="post">
-          <input type="text" name="nombre" placeholder="Nombre del producto" required>
-          <input type="number" name="precio" placeholder="Precio" required>
-          <input type="text" name="categoria" placeholder="Categoría" required>
-          <input type="text" id="codigo" name="codigo" placeholder="Código de barras" required>
-          <button type="button" onclick="iniciarEscaneo()">📷 Escanear</button>
-          <button type="submit">Guardar</button>
-        </form>
-      </div>
-    </div>
-
+<main>
     <h1>Lista de Productos</h1>
-    <input type="text" placeholder="Buscar producto...">
-    <button>Buscar</button>
+
+    <form method="get" action="/">
+        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
+        <button type="submit">Buscar</button>
+        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
+    </form>
 
     <h2>Escanear código de barras</h2>
-    <button style="background-color:#c62828;color:white;padding:10px 15px;border:none;border-radius:4px" onclick="iniciarEscaneo()">Iniciar Escáner</button>
+    <div id="reader"></div>
+    <button type="button" onclick="startScanner()">Iniciar Escáner</button>
 
     <table>
-      <tr><th>Nombre</th><th>Precio</th><th>Categoría</th><th>Acciones</th></tr>
-      <tr><td>Boing 500ml</td><td>$15</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
-      <tr><td>Boing 250ml</td><td>$9</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
-      <tr><td>Naranjada 600ml</td><td>$18</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
-      <tr><td>Frutsi 125ml</td><td>$5</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>
+                        <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
+                        <div class="edit-section" id="edit-section-{{ producto.id }}">
+                            <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
+                                <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
+                                <button type="submit">Actualizar</button>
+                            </form>
+                            <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
+                                <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
-  </div>
+</main>
 
-  <script>
-    async function iniciarEscaneo() {
-      if (!('BarcodeDetector' in window)) {
-        alert('Tu navegador no soporta escaneo de códigos.');
-        return;
-      }
-      try {
-        const constraints = { video: { facingMode: 'environment' } };
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        video.setAttribute('playsinline', true);
-        video.play();
+<!-- Modal -->
+<div id="modal-agregar" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Agregar producto nuevo</h2>
+        <form method="post" action="/agregar">
+            <input type="text" name="nombre" placeholder="Nombre" required>
+            <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
+            <input type="text" name="categoria" placeholder="Categoría" required>
+            <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
+            <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
+            <button type="submit">Agregar</button>
+        </form>
+        <div id="reader-agregar"></div>
+    </div>
+</div>
 
-        const modal = document.createElement('div');
-        modal.style.position = 'fixed';
-        modal.style.top = 0;
-        modal.style.left = 0;
-        modal.style.width = '100%';
-        modal.style.height = '100%';
-        modal.style.background = 'rgba(0,0,0,0.8)';
-        modal.style.display = 'flex';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
-        modal.appendChild(video);
-        document.body.appendChild(modal);
+<footer>
+    Autor: MBP
+</footer>
 
-        const detector = new BarcodeDetector({ formats: ['ean_13', 'code_128', 'ean_8'] });
-        const interval = setInterval(async () => {
-          const detections = await detector.detect(video);
-          if (detections.length > 0) {
-            document.getElementById('codigo').value = detections[0].rawValue;
-            clearInterval(interval);
-            stream.getTracks().forEach(track => track.stop());
-            document.body.removeChild(modal);
-          }
-        }, 500);
-      } catch (e) {
-        alert('No se pudo iniciar la cámara.');
-        console.error(e);
-      }
+<script>
+    function toggleEdit(id) {
+        const section = document.getElementById("edit-section-" + id);
+        section.style.display = section.style.display === "block" ? "none" : "block";
     }
-  </script>
+
+    function iniciarReconocimiento() {
+        const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        reconocimiento.lang = 'es-ES';
+
+        reconocimiento.onresult = function(event) {
+            const resultado = event.results[0][0].transcript;
+            document.getElementById('busqueda').value = resultado;
+        };
+
+        reconocimiento.start();
+    }
+
+    function startScanner() {
+        const html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('busqueda').value = qrCodeMessage;
+                html5QrCode.stop().then(() => {
+                    document.forms[0].submit();
+                }).catch(err => {
+                    console.error("Error al detener el escáner", err);
+                });
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner", err);
+        });
+    }
+
+    function startAddScanner() {
+        const html5QrCode = new Html5Qrcode("reader-agregar");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('codigo').value = qrCodeMessage;
+                html5QrCode.stop().then(() => {
+                    document.getElementById('reader-agregar').innerHTML = "";
+                }).catch(err => {
+                    console.error("Error al detener escáner", err);
+                });
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner", err);
+        });
+    }
+
+    function mostrarModal() {
+        document.getElementById("modal-agregar").style.display = "block";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-agregar").style.display = "none";
+        document.getElementById("reader-agregar").innerHTML = "";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("modal-agregar");
+        if (event.target === modal) {
+            cerrarModal();
+        }
+    }
+</script>
+
 </body>
 </html>
