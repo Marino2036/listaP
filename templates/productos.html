@@ -3,111 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <title>Lista de Productos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #f0f0f0;
-            padding: 10px 20px;
         }
-        header img {
-            width: 100px;
-            height: 100px;
+
+        #logo {
+            height: 80px;
         }
+
+        nav {
+            text-align: right;
+        }
+
         nav a {
-            margin-left: 15px;
             text-decoration: none;
+            margin-left: 20px;
+            color: #007BFF;
             font-weight: bold;
-            color: #333;
         }
-        main {
-            padding: 20px;
-        }
-        form { margin-bottom: 20px; }
-        input[type="text"], input[type="number"] {
-            padding: 5px;
-            margin-right: 10px;
-        }
-        button {
-            padding: 5px 10px;
-        }
-        ul { list-style: none; padding: 0; }
-        li {
-            margin-bottom: 10px;
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .edit-section {
-            display: none;
+
+        h1 {
+            text-align: center;
             margin-top: 10px;
         }
+
+        #formularioBusqueda {
+            margin: 20px auto;
+            max-width: 600px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #formularioBusqueda input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        .mic-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .mic-btn.escuchando {
+            background-color: #dc3545;
+        }
+
+        #mensajeEscuchando {
+            text-align: center;
+            font-style: italic;
+            color: #dc3545;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
         footer {
             text-align: center;
-            padding: 10px;
-            color: gray;
-            font-size: 0.9em;
+            margin-top: 40px;
+            font-style: italic;
+            color: #555;
         }
     </style>
-    <script>
-        function toggleEdit(id) {
-            const section = document.getElementById("edit-section-" + id);
-            section.style.display = section.style.display === "block" ? "none" : "block";
-        }
-    </script>
 </head>
 <body>
 
-<header>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo de la tienda">
-    <nav>
-        <a href="/">Inicio</a>
-        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
-    </nav>
-</header>
+    <header>
+        <div>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" id="logo">
+        </div>
+        <nav>
+            <a href="/">Volver al inicio</a>
+        </nav>
+    </header>
 
-<main>
     <h1>Lista de Productos</h1>
 
-    <form method="get" action="/">
-        <input type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
-        <button type="submit">Buscar</button>
+    <form id="formularioBusqueda" method="GET" action="/">
+        <input type="text" id="busqueda" name="busqueda" placeholder="Buscar producto...">
+        <button type="button" id="micButton" onclick="iniciarBusquedaPorVoz()" class="mic-btn" title="Buscar por voz">
+            <i class="fas fa-microphone"></i>
+        </button>
     </form>
 
-    <h2>Agregar producto nuevo</h2>
-    <form method="post" action="/agregar">
-        <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
-        <input type="text" name="categoria" placeholder="Categoría" required>
-        <button type="submit">Agregar</button>
-    </form>
+    <div id="mensajeEscuchando">🎤 Escuchando...</div>
 
-    <ul>
-        {% for producto in productos %}
-            <li>
-                <strong>{{ producto.nombre }}</strong> - ${{ producto.precio }} ({{ producto.categoria }})
-                <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>${{ "%.2f"|format(producto.precio) }}</td>
+                <td>{{ producto.categoria }}</td>
+                <td>
+                    <a href="/editar/{{ producto.id }}">Editar</a> |
+                    <a href="/eliminar/{{ producto.id }}" onclick="return confirm('¿Estás seguro?')">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-                <div class="edit-section" id="edit-section-{{ producto.id }}">
-                    <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
-                        <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
-                        <button type="submit">Actualizar</button>
-                    </form>
-                    <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
-                        <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
-                    </form>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-</main>
+    <footer>
+        Autor: MBP
+    </footer>
 
-<footer>
-    Autor: MBP
-</footer>
+    <script>
+        function iniciarBusquedaPorVoz() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'es-MX';
+
+            const micButton = document.getElementById("micButton");
+            const mensaje = document.getElementById("mensajeEscuchando");
+
+            micButton.classList.add("escuchando");
+            mensaje.style.display = "block";
+
+            recognition.onresult = function(event) {
+                const texto = event.results[0][0].transcript;
+                document.getElementById("busqueda").value = texto;
+                micButton.classList.remove("escuchando");
+                mensaje.style.display = "none";
+                document.getElementById("formularioBusqueda").submit();
+            };
+
+            recognition.onerror = function(event) {
+                alert("Error al usar el micrófono: " + event.error);
+                micButton.classList.remove("escuchando");
+                mensaje.style.display = "none";
+            };
+
+            recognition.onend = function() {
+                micButton.classList.remove("escuchando");
+                mensaje.style.display = "none";
+            };
+
+            recognition.start();
+        }
+    </script>
 
 </body>
 </html>
