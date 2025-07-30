@@ -3,156 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <title>Lista de Productos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #f6f8fa;
+            margin: 0;
+            padding: 0;
         }
-
         header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        #logo {
-            height: 80px;
+        header img {
+            height: 60px;
         }
-
-        nav {
-            text-align: right;
-        }
-
         nav a {
+            color: white;
+            margin-left: 15px;
             text-decoration: none;
-            margin-left: 20px;
-            color: #007BFF;
             font-weight: bold;
         }
-
-        h1 {
-            text-align: center;
-            margin-top: 10px;
+        main {
+            padding: 20px;
         }
-
+        h1, h2 {
+            color: #333;
+        }
         form {
-            margin: 20px auto;
-            max-width: 600px;
-            display: flex;
-            gap: 10px;
+            margin-bottom: 20px;
         }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            font-size: 1em;
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
-
-        button, .mic-btn {
-            background-color: #007BFF;
+        button {
+            padding: 8px 12px;
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 14px;
             border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s;
         }
-
-        .mic-btn.escuchando {
-            background-color: #dc3545;
+        button:hover {
+            background-color: #0056b3;
         }
-
-        #mensajeEscuchando {
-            text-align: center;
-            font-style: italic;
-            color: #dc3545;
-            display: none;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            background: white;
         }
-
         th, td {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
         }
-
         th {
-            background-color: #f2f2f2;
+            background-color: #007bff;
+            color: white;
         }
-
-        .acciones a {
-            margin-right: 10px;
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-style: italic;
-            color: #555;
-        }
-
-        .top-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        .edit-section {
+            display: none;
             margin-top: 10px;
         }
-
-        .top-buttons a {
+        .mic-btn {
             background-color: #28a745;
-            padding: 10px 14px;
-            border-radius: 5px;
-            color: white;
-            text-decoration: none;
-            transition: background-color 0.3s;
+            margin-left: 5px;
         }
-
-        .top-buttons a:hover {
+        .mic-btn:hover {
             background-color: #218838;
         }
+        footer {
+            text-align: center;
+            padding: 10px;
+            color: gray;
+            font-size: 0.9em;
+        }
     </style>
+    <script>
+        function toggleEdit(id) {
+            const section = document.getElementById("edit-section-" + id);
+            section.style.display = section.style.display === "block" ? "none" : "block";
+        }
+
+        function iniciarReconocimiento() {
+            const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            reconocimiento.lang = 'es-ES';
+
+            reconocimiento.onresult = function(event) {
+                const resultado = event.results[0][0].transcript;
+                document.getElementById('busqueda').value = resultado;
+            };
+
+            reconocimiento.start();
+        }
+    </script>
 </head>
 <body>
 
-    <header>
-        <div>
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" id="logo">
-        </div>
-        <nav>
-            <a href="/">Inicio</a>
-            <a href="/agregar">Agregar producto</a>
-        </nav>
-    </header>
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
+    </nav>
+</header>
 
+<main>
     <h1>Lista de Productos</h1>
 
-    <form id="formularioBusqueda" method="GET" action="/">
-        <input type="text" id="busqueda" name="busqueda" placeholder="Buscar producto...">
-        <button type="submit" title="Buscar por texto">Buscar</button>
-        <button type="button" id="micButton" onclick="iniciarBusquedaPorVoz()" class="mic-btn" title="Buscar por voz">
-            <i class="fas fa-microphone"></i>
-        </button>
+    <form method="get" action="/">
+        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
+        <button type="submit">Buscar</button>
+        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
     </form>
 
-    <div id="mensajeEscuchando">🎤 Escuchando...</div>
-
-    <div class="top-buttons">
-        <a href="/generar_pdf" target="_blank"><i class="fas fa-file-pdf"></i> Generar PDF</a>
-    </div>
+    <h2>Agregar producto nuevo</h2>
+    <form method="post" action="/agregar">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
+        <input type="text" name="categoria" placeholder="Categoría" required>
+        <button type="submit">Agregar</button>
+    </form>
 
     <table>
         <thead>
             <tr>
-                <th>Producto</th>
+                <th>Nombre</th>
                 <th>Precio</th>
                 <th>Categoría</th>
                 <th>Acciones</th>
@@ -160,58 +141,31 @@
         </thead>
         <tbody>
             {% for producto in productos %}
-            <tr>
-                <td>{{ producto.nombre }}</td>
-                <td>${{ "%.2f"|format(producto.precio) }}</td>
-                <td>{{ producto.categoria }}</td>
-                <td class="acciones">
-                    <a href="/editar/{{ producto.id }}"><i class="fas fa-edit"></i> Editar</a>
-                    <a href="/eliminar/{{ producto.id }}" onclick="return confirm('¿Estás seguro de eliminar este producto?')">
-                        <i class="fas fa-trash-alt"></i> Eliminar
-                    </a>
-                </td>
-            </tr>
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>
+                        <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
+                        <div class="edit-section" id="edit-section-{{ producto.id }}">
+                            <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
+                                <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
+                                <button type="submit">Actualizar</button>
+                            </form>
+                            <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
+                                <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
+</main>
 
-    <footer>
-        Autor: MBP
-    </footer>
-
-    <script>
-        function iniciarBusquedaPorVoz() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'es-MX';
-
-            const micButton = document.getElementById("micButton");
-            const mensaje = document.getElementById("mensajeEscuchando");
-
-            micButton.classList.add("escuchando");
-            mensaje.style.display = "block";
-
-            recognition.onresult = function(event) {
-                const texto = event.results[0][0].transcript;
-                document.getElementById("busqueda").value = texto;
-                micButton.classList.remove("escuchando");
-                mensaje.style.display = "none";
-                document.getElementById("formularioBusqueda").submit();
-            };
-
-            recognition.onerror = function(event) {
-                alert("Error al usar el micrófono: " + event.error);
-                micButton.classList.remove("escuchando");
-                mensaje.style.display = "none";
-            };
-
-            recognition.onend = function() {
-                micButton.classList.remove("escuchando");
-                mensaje.style.display = "none";
-            };
-
-            recognition.start();
-        }
-    </script>
+<footer>
+    Autor: MBP
+</footer>
 
 </body>
 </html>
