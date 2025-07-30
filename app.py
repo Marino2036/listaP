@@ -54,14 +54,6 @@ def agregar():
     guardar_productos(productos)
     return redirect('/')
 
-@app.route('/buscar')
-def buscar():
-    termino = request.args.get('q', '').lower()
-    productos = cargar_productos()
-    resultados = [p for p in productos if termino in p['nombre'].lower() or termino in p.get('codigo', '')]
-    categorias = sorted(set(p['categoria'] for p in productos))
-    return render_template('productos.html', productos=resultados, categorias=categorias)
-
 @app.route('/editar/<int:producto_id>', methods=['POST'])
 def editar(producto_id):
     productos = cargar_productos()
@@ -75,7 +67,7 @@ def editar(producto_id):
     guardar_productos(productos)
     return redirect('/')
 
-@app.route('/eliminar/<int:producto_id>')
+@app.route('/eliminar/<int:producto_id>', methods=['POST'])
 def eliminar(producto_id):
     productos = cargar_productos()
     productos = [p for p in productos if p['id'] != producto_id]
