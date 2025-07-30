@@ -49,9 +49,13 @@
             margin-right: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            font-size: 1rem;
+            min-height: 40px;
         }
         button {
-            padding: 8px 12px;
+            padding: 10px 14px;
+            font-size: 1rem;
+            min-height: 40px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -60,10 +64,44 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        /* Botón especial para escáner */
+        .btn-escaner {
+            background-color: #dc3545;
+            margin: 20px 0;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-escaner:hover {
+            background-color: #c82333;
+        }
+
+        .mic-btn {
+            background-color: #28a745;
+            margin-left: 5px;
+        }
+        .mic-btn:hover {
+            background-color: #218838;
+        }
+
+        .edit-section {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
+            min-width: 600px;
         }
         th, td {
             padding: 12px;
@@ -73,27 +111,19 @@
             background-color: #007bff;
             color: white;
         }
-        .edit-section {
-            display: none;
+
+        #reader, #reader-agregar {
+            width: 100%;
+            max-width: 320px;
             margin-top: 10px;
+            margin-bottom: 20px;
         }
-        .mic-btn {
-            background-color: #28a745;
-            margin-left: 5px;
-        }
-        .mic-btn:hover {
-            background-color: #218838;
-        }
+
         footer {
             text-align: center;
             padding: 10px;
             color: gray;
             font-size: 0.9em;
-        }
-        #reader, #reader-agregar {
-            width: 320px;
-            margin-top: 10px;
-            margin-bottom: 20px;
         }
 
         /* Modal */
@@ -108,7 +138,6 @@
             overflow: auto;
             background-color: rgba(0,0,0,0.4);
         }
-
         .modal-content {
             background-color: #fff;
             margin: 10% auto;
@@ -118,7 +147,6 @@
             max-width: 600px;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
         }
-
         .close {
             float: right;
             font-size: 28px;
@@ -126,7 +154,6 @@
             color: #aaa;
             cursor: pointer;
         }
-
         .close:hover {
             color: black;
         }
@@ -157,39 +184,41 @@
 
     <h2>Escanear código de barras</h2>
     <div id="reader"></div>
-    <button type="button" onclick="startScanner()">Iniciar Escáner</button>
+    <button type="button" onclick="startScanner()" class="btn-escaner">Iniciar Escáner</button>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Categoría</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producto in productos %}
+    <div class="table-container">
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ producto.nombre }}</td>
-                    <td>${{ producto.precio }}</td>
-                    <td>{{ producto.categoria }}</td>
-                    <td>
-                        <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
-                        <div class="edit-section" id="edit-section-{{ producto.id }}">
-                            <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
-                                <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
-                                <button type="submit">Actualizar</button>
-                            </form>
-                            <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
-                                <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
-                            </form>
-                        </div>
-                    </td>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>
+                            <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
+                            <div class="edit-section" id="edit-section-{{ producto.id }}">
+                                <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
+                                    <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
+                                    <button type="submit">Actualizar</button>
+                                </form>
+                                <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
+                                    <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </main>
 
 <!-- Modal -->
