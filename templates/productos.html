@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>Lista de Productos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f6f8fa;
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
         }
         header {
             background-color: #343a40;
@@ -55,7 +56,6 @@
             color: white;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
         }
         button:hover {
             background-color: #b30000;
@@ -90,21 +90,25 @@
             color: gray;
             font-size: 0.9em;
         }
-        #reader, #reader-agregar, .reader-editar {
+        #reader, #reader-agregar {
             width: 320px;
             margin-top: 10px;
             margin-bottom: 20px;
         }
+
         /* Modal */
         .modal {
             display: none;
             position: fixed;
             z-index: 10;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
             overflow: auto;
             background-color: rgba(0,0,0,0.4);
         }
+
         .modal-content {
             background-color: #fff;
             margin: 10% auto;
@@ -114,6 +118,7 @@
             max-width: 600px;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
         }
+
         .close {
             float: right;
             font-size: 28px;
@@ -121,17 +126,19 @@
             color: #aaa;
             cursor: pointer;
         }
+
         .close:hover {
             color: black;
         }
     </style>
 
+    <!-- Librería para escanear código de barras -->
     <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
     <nav>
         <a href="/">Inicio</a>
         <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
@@ -142,16 +149,15 @@
 <main>
     <h1>Lista de Productos</h1>
 
-    <form method="get" action="/buscar">
-        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ request.args.get('q', '') }}" />
+    <form method="get" action="/">
+        <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
         <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
     </form>
 
     <h2>Escanear código de barras</h2>
     <div id="reader"></div>
-    <button type="button" onclick="startScanner('reader', 'busqueda', this)">Iniciar Escáner</button>
-    <button type="button" onclick="toggleFlash()">Activar/Desactivar Flash</button>
+    <button type="button" onclick="startScanner()">Iniciar Escáner</button>
 
     <table>
         <thead>
@@ -159,7 +165,6 @@
                 <th>Nombre</th>
                 <th>Precio</th>
                 <th>Categoría</th>
-                <th>Código de Barras</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -169,32 +174,15 @@
                     <td>{{ producto.nombre }}</td>
                     <td>${{ producto.precio }}</td>
                     <td>{{ producto.categoria }}</td>
-                    <td>{{ producto.codigo }}</td>
                     <td>
                         <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
                         <div class="edit-section" id="edit-section-{{ producto.id }}">
-                            <form method="post" action="/editar/{{ producto.id }}" style="margin-bottom: 10px;">
-                                <input type="text" name="nombre" value="{{ producto.nombre }}" required />
-                                <input type="number" name="precio" value="{{ producto.precio }}" min="0" step="0.01" required />
-                                <input type="text" name="categoria" value="{{ producto.categoria }}" required />
-                                <input
-                                    type="text"
-                                    name="codigo"
-                                    id="codigo-editar-{{ producto.id }}"
-                                    value="{{ producto.codigo }}"
-                                    placeholder="Código de barras"
-                                />
-                                <button
-                                    type="button"
-                                    onclick="startScanner('reader-editar-{{ producto.id }}', 'codigo-editar-{{ producto.id }}', this)"
-                                >
-                                    📷 Escanear código
-                                </button>
-                                <button type="submit">Guardar</button>
+                            <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
+                                <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
+                                <button type="submit">Actualizar</button>
                             </form>
-                            <div id="reader-editar-{{ producto.id }}" class="reader-editar"></div>
-                            <form method="post" action="/eliminar/{{ producto.id }}" onsubmit="return confirm('¿Eliminar este producto?');">
-                                <button type="submit">Eliminar</button>
+                            <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
+                                <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
                             </form>
                         </div>
                     </td>
@@ -204,17 +192,17 @@
     </table>
 </main>
 
-<!-- Modal Agregar -->
+<!-- Modal -->
 <div id="modal-agregar" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
         <h2>Agregar producto nuevo</h2>
         <form method="post" action="/agregar">
-            <input type="text" name="nombre" placeholder="Nombre" required />
-            <input type="number" name="precio" placeholder="Precio" min="0" step="0.01" required />
-            <input type="text" name="categoria" placeholder="Categoría" required />
-            <input type="text" name="codigo" id="codigo-agregar" placeholder="Código de barras" />
-            <button type="button" onclick="startScanner('reader-agregar', 'codigo-agregar', this)">📷 Escanear código</button>
+            <input type="text" name="nombre" placeholder="Nombre" required>
+            <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
+            <input type="text" name="categoria" placeholder="Categoría" required>
+            <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
+            <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
             <button type="submit">Agregar</button>
         </form>
         <div id="reader-agregar"></div>
@@ -226,18 +214,81 @@
 </footer>
 
 <script>
-    let currentScanner = null;
-    let isFlashOn = false;
-
     function toggleEdit(id) {
         const section = document.getElementById("edit-section-" + id);
-        if (section.style.display === "block") {
-            stopScanner(); // Para el escáner si está activo
-            section.style.display = "none";
-        } else {
-            // Cerrar otros edit-sections y escáneres activos
-            document.querySelectorAll(".edit-section").forEach(s => {
-                if (s !== section) s.style.display = "none";
-            });
-            stopScanner();
-            section.style.display = "
+        section.style.display = section.style.display === "block" ? "none" : "block";
+    }
+
+    function iniciarReconocimiento() {
+        const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        reconocimiento.lang = 'es-ES';
+
+        reconocimiento.onresult = function(event) {
+            const resultado = event.results[0][0].transcript;
+            document.getElementById('busqueda').value = resultado;
+        };
+
+        reconocimiento.start();
+    }
+
+    function startScanner() {
+        const html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('busqueda').value = qrCodeMessage;
+                html5QrCode.stop().then(() => {
+                    document.forms[0].submit();
+                }).catch(err => {
+                    console.error("Error al detener el escáner", err);
+                });
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner", err);
+        });
+    }
+
+    function startAddScanner() {
+        const html5QrCode = new Html5Qrcode("reader-agregar");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('codigo').value = qrCodeMessage;
+                html5QrCode.stop().then(() => {
+                    document.getElementById('reader-agregar').innerHTML = "";
+                }).catch(err => {
+                    console.error("Error al detener escáner", err);
+                });
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner", err);
+        });
+    }
+
+    function mostrarModal() {
+        document.getElementById("modal-agregar").style.display = "block";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-agregar").style.display = "none";
+        document.getElementById("reader-agregar").innerHTML = "";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("modal-agregar");
+        if (event.target === modal) {
+            cerrarModal();
+        }
+    }
+</script>
+
+</body>
+</html>
