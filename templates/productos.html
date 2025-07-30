@@ -22,11 +22,18 @@
         header img {
             height: 60px;
         }
-        nav a {
+        nav a, nav button {
             color: white;
             margin-left: 15px;
             text-decoration: none;
             font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        nav button:hover, nav a:hover {
+            text-decoration: underline;
         }
         main {
             padding: 20px;
@@ -83,25 +90,50 @@
             color: gray;
             font-size: 0.9em;
         }
+        #reader, #reader-agregar {
+            width: 320px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
     </style>
-    <script>
-        function toggleEdit(id) {
-            const section = document.getElementById("edit-section-" + id);
-            section.style.display = section.style.display === "block" ? "none" : "block";
-        }
 
-        function iniciarReconocimiento() {
-            const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            reconocimiento.lang = 'es-ES';
-
-            reconocimiento.onresult = function(event) {
-                const resultado = event.results[0][0].transcript;
-                document.getElementById('busqueda').value = resultado;
-            };
-
-            reconocimiento.start();
-        }
-    </script>
+    <!-- Librería para escanear código de barras -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -110,6 +142,7 @@
     <nav>
         <a href="/">Inicio</a>
         <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
+        <button onclick="mostrarModal()">➕ Agregar producto</button>
     </nav>
 </header>
 
@@ -122,13 +155,9 @@
         <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
     </form>
 
-    <h2>Agregar producto nuevo</h2>
-    <form method="post" action="/agregar">
-        <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
-        <input type="text" name="categoria" placeholder="Categoría" required>
-        <button type="submit">Agregar</button>
-    </form>
+    <h2>Escanear código de barras</h2>
+    <div id="reader"></div>
+    <button type="button" onclick="startScanner()">Iniciar Escáner</button>
 
     <table>
         <thead>
@@ -163,9 +192,103 @@
     </table>
 </main>
 
+<!-- Modal -->
+<div id="modal-agregar" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Agregar producto nuevo</h2>
+        <form method="post" action="/agregar">
+            <input type="text" name="nombre" placeholder="Nombre" required>
+            <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
+            <input type="text" name="categoria" placeholder="Categoría" required>
+            <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
+            <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
+            <button type="submit">Agregar</button>
+        </form>
+        <div id="reader-agregar"></div>
+    </div>
+</div>
+
 <footer>
     Autor: MBP
 </footer>
+
+<script>
+    function toggleEdit(id) {
+        const section = document.getElementById("edit-section-" + id);
+        section.style.display = section.style.display === "block" ? "none" : "block";
+    }
+
+    function iniciarReconocimiento() {
+        const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        reconocimiento.lang = 'es-ES';
+
+        reconocimiento.onresult = function(event) {
+            const resultado = event.results[0][0].transcript;
+            document.getElementById('busqueda').value = resultado;
+        };
+
+        reconocimiento.start();
+    }
+
+    function startScanner() {
+        const html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('busqueda').value = qrCodeMessage;
+                html5QrCode.stop().then(() => {
+                    document.forms[0].submit();
+                }).catch(err => {
+                    console.error("Error al detener el escáner", err);
+                });
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner", err);
+        });
+    }
+
+    function startAddScanner() {
+        const html5QrCode = new Html5Qrcode("reader-agregar");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('codigo').value = qrCodeMessage;
+                html5QrCode.stop().then(() => {
+                    document.getElementById('reader-agregar').innerHTML = "";
+                }).catch(err => {
+                    console.error("Error al detener escáner", err);
+                });
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner", err);
+        });
+    }
+
+    function mostrarModal() {
+        document.getElementById("modal-agregar").style.display = "block";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-agregar").style.display = "none";
+        document.getElementById("reader-agregar").innerHTML = "";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("modal-agregar");
+        if (event.target === modal) {
+            cerrarModal();
+        }
+    }
+</script>
 
 </body>
 </html>
