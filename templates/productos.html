@@ -1,247 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Productos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-        }
-
-        header {
-            background-color: #343a40;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        header img {
-            height: 50px;
-        }
-
-        nav {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 15px;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        main {
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 2rem;
-        }
-
-        .search-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"],
-        input[type="number"] {
-            padding: 10px;
-            font-size: 1rem;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        button {
-            padding: 10px 16px;
-            font-size: 1rem;
-            cursor: pointer;
-            min-height: 40px;
-        }
-
-        .mic-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .btn-escaner {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            margin: 20px 0;
-            padding: 10px 16px;
-            font-weight: bold;
-        }
-
-        .btn-escaner:hover {
-            background-color: #c82333;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        #reader {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px 0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .cerrar {
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Productos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    nav {
+      background-color: #333;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      color: white;
+    }
+    nav img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    nav a {
+      color: white;
+      margin-right: 15px;
+      text-decoration: none;
+    }
+    .container {
+      padding: 20px;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 90%;
+    }
+    .cerrar {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <img src="/static/logo.png" alt="Logo">
-        <nav>
-            <a href="/">Inicio</a>
-            <a href="/generar_pdf">Generar PDF</a>
-            <a href="#" onclick="abrirModal()">➕ Agregar producto</a>
-        </nav>
-    </header>
-    <main>
-        <h1>Lista de Productos</h1>
+  <nav>
+    <img src="/logo.png" alt="Logo" />
+    <a href="/">Inicio</a>
+    <a href="/pdf">Generar PDF</a>
+    <a href="#" onclick="abrirModal()">➕ Agregar producto</a>
+  </nav>
 
-        <form method="get" action="/" class="search-bar">
-            <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
-            <button type="submit">Buscar</button>
-            <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
-        </form>
+  <div class="container">
+    <h1>Lista de Productos</h1>
+    <form action="/buscar" method="get">
+      <input type="text" name="query" placeholder="Buscar producto...">
+      <button type="submit">Buscar</button>
+    </form>
 
-        <h2>Escanear código de barras</h2>
-        <button type="button" onclick="startScanner()" class="btn-escaner">Iniciar Escáner</button>
-        <div id="reader"></div>
+    <h2>Escanear código de barras</h2>
+    <button style="background-color:#c62828; color:white">Iniciar Escáner</button>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th>Categoría</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    <tr>
-                        <td>{{ producto.nombre }}</td>
-                        <td>${{ producto.precio }}</td>
-                        <td>{{ producto.categoria }}</td>
-                        <td><a href="/editar/{{ producto.id }}">Editar</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </main>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Categoría</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Boing 500ml</td><td>$15</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
+        <tr><td>Boing 250ml</td><td>$9</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
+        <tr><td>Naranjada 600ml</td><td>$18</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
+        <tr><td>Frutsi 125ml</td><td>$5</td><td>Bebidas</td><td><a href="#">Editar</a></td></tr>
+      </tbody>
+    </table>
+  </div>
 
-    <div id="modalAgregar" class="modal">
-        <div class="modal-content">
-            <span class="cerrar" onclick="cerrarModal()">&times;</span>
-            <h2>Agregar Producto</h2>
-            <form action="/crear" method="post">
-                <input type="text" name="nombre" placeholder="Nombre del producto" required>
-                <input type="number" name="precio" placeholder="Precio" required>
-                <input type="text" name="categoria" placeholder="Categoría" required>
-                <button type="submit">Guardar</button>
-            </form>
-        </div>
+  <!-- Modal Agregar Producto -->
+  <div id="modalAgregar" class="modal">
+    <div class="modal-content">
+      <span class="cerrar" onclick="cerrarModal()">&times;</span>
+      <h2>Agregar Producto</h2>
+      <form action="/crear" method="post">
+        <input type="text" name="nombre" placeholder="Nombre del producto" required>
+        <input type="number" name="precio" placeholder="Precio" required>
+        <input type="text" name="categoria" placeholder="Categoría" required>
+        <input type="text" id="codigo" name="codigo" placeholder="Código de barras" required>
+        <button type="button" onclick="iniciarEscaneo()">📷 Escanear</button>
+        <button type="submit">Guardar</button>
+      </form>
     </div>
+  </div>
 
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script>
-        function startScanner() {
-            const scanner = new Html5Qrcode("reader");
-            const config = { fps: 10, qrbox: 250 };
-            scanner.start(
-                { facingMode: "environment" },
-                config,
-                (decodedText, decodedResult) => {
-                    document.getElementById("busqueda").value = decodedText;
-                    scanner.stop();
-                },
-                (errorMessage) => {
-                    console.warn(errorMessage);
-                }
-            ).catch(err => console.error(err));
-        }
+  <script>
+    function abrirModal() {
+      document.getElementById('modalAgregar').style.display = 'block';
+    }
 
-        function iniciarReconocimiento() {
-            const reconocimiento = new webkitSpeechRecognition();
-            reconocimiento.lang = "es-ES";
-            reconocimiento.onresult = function(event) {
-                const texto = event.results[0][0].transcript;
-                document.getElementById("busqueda").value = texto;
-            };
-            reconocimiento.start();
-        }
+    function cerrarModal() {
+      document.getElementById('modalAgregar').style.display = 'none';
+    }
 
-        function abrirModal() {
-            document.getElementById('modalAgregar').style.display = 'block';
-        }
+    async function iniciarEscaneo() {
+      if (!('BarcodeDetector' in window)) {
+        alert('Tu navegador no soporta escaneo de códigos.');
+        return;
+      }
 
-        function cerrarModal() {
-            document.getElementById('modalAgregar').style.display = 'none';
-        }
-    </script>
+      try {
+        const constraints = { video: { facingMode: 'environment' } };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = 0;
+        modal.style.left = 0;
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.background = 'rgba(0,0,0,0.7)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.appendChild(video);
+        document.body.appendChild(modal);
+
+        const detector = new BarcodeDetector({ formats: ['ean_13', 'code_128', 'ean_8'] });
+
+        const interval = setInterval(async () => {
+          const detections = await detector.detect(video);
+          if (detections.length > 0) {
+            document.getElementById('codigo').value = detections[0].rawValue;
+            clearInterval(interval);
+            stream.getTracks().forEach(track => track.stop());
+            document.body.removeChild(modal);
+          }
+        }, 500);
+      } catch (e) {
+        console.error('Error al acceder a la cámara:', e);
+        alert('No se pudo iniciar la cámara.');
+      }
+    }
+  </script>
 </body>
 </html>
