@@ -56,7 +56,7 @@
     {"id": 56, "nombre": "gelatina naranja polvo D'Gari 120g", "precio": 13, "categoria": "gelatinas", "codigo": "735257002476"},
     {"id": 57, "nombre": "gelatina chocolate polvo D'Gari 120g", "precio": 13, "categoria": "gelatinas", "codigo": "735257002650"},
     {"id": 58, "nombre": "chocolate abuelita tablilla 85 g", "precio": 17, "categoria": "atoles", "codigo": "7506475121255"},
-    {"id": 59, "nombre": "cafe capuchino nescafe 20g", "precio": 12, "categoria": "cafes", "codigo": ["7501058629128", "7506475110983"]},
+    {"id": 59, "nombre": "cafe capuchino nescafe 20g", "precio": 12, "categoria": "cafes", "codigo": "7501058629128"},
     {"id": 60, "nombre": "Maizena chocolate atole 45g", "precio": 14, "categoria": "atoles", "codigo": "7501005107013"}
     ]
     
