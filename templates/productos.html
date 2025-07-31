@@ -95,7 +95,6 @@
             margin-top: 10px;
             margin-bottom: 20px;
         }
-
         /* Modal */
         .modal {
             display: none;
@@ -108,7 +107,6 @@
             overflow: auto;
             background-color: rgba(0,0,0,0.4);
         }
-
         .modal-content {
             background-color: #fff;
             margin: 10% auto;
@@ -118,7 +116,6 @@
             max-width: 600px;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
         }
-
         .close {
             float: right;
             font-size: 28px;
@@ -126,7 +123,6 @@
             color: #aaa;
             cursor: pointer;
         }
-
         .close:hover {
             color: black;
         }
@@ -158,6 +154,7 @@
     <h2>Escanear código de barras</h2>
     <div id="reader"></div>
     <button type="button" onclick="startScanner()">Iniciar Escáner</button>
+    <button id="btnFlash" onclick="toggleFlash()" style="margin-left: 10px; display:none;">🔦 Activar flash</button>
 
     <table>
         <thead>
@@ -214,6 +211,9 @@
 </footer>
 
 <script>
+    let html5QrCode;
+    let flashOn = false;
+
     function toggleEdit(id) {
         const section = document.getElementById("edit-section-" + id);
         section.style.display = section.style.display === "block" ? "none" : "block";
@@ -232,7 +232,7 @@
     }
 
     function startScanner() {
-        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCode = new Html5Qrcode("reader");
         const config = { fps: 10, qrbox: 250 };
 
         html5QrCode.start(
@@ -242,26 +242,47 @@
                 document.getElementById('busqueda').value = qrCodeMessage;
                 html5QrCode.stop().then(() => {
                     document.forms[0].submit();
+                    document.getElementById('btnFlash').style.display = "none";
                 }).catch(err => {
                     console.error("Error al detener el escáner", err);
                 });
             },
             errorMessage => {}
-        ).catch(err => {
+        ).then(() => {
+            document.getElementById('btnFlash').style.display = "inline-block";
+        }).catch(err => {
             console.error("No se pudo iniciar el escáner", err);
         });
     }
 
+    async function toggleFlash() {
+        if (!html5QrCode) return;
+
+        try {
+            if (flashOn) {
+                await html5QrCode.turnFlashOff();
+                document.getElementById('btnFlash').innerText = '🔦 Activar flash';
+            } else {
+                await html5QrCode.turnFlashOn();
+                document.getElementById('btnFlash').innerText = '💡 Apagar flash';
+            }
+            flashOn = !flashOn;
+        } catch (e) {
+            alert("Tu dispositivo no soporta el control del flash.");
+            console.error(e);
+        }
+    }
+
     function startAddScanner() {
-        const html5QrCode = new Html5Qrcode("reader-agregar");
+        const html5QrCodeAgregar = new Html5Qrcode("reader-agregar");
         const config = { fps: 10, qrbox: 250 };
 
-        html5QrCode.start(
+        html5QrCodeAgregar.start(
             { facingMode: "environment" },
             config,
             qrCodeMessage => {
                 document.getElementById('codigo').value = qrCodeMessage;
-                html5QrCode.stop().then(() => {
+                html5QrCodeAgregar.stop().then(() => {
                     document.getElementById('reader-agregar').innerHTML = "";
                 }).catch(err => {
                     console.error("Error al detener escáner", err);
