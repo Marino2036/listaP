@@ -8,7 +8,7 @@
     {"id": 8, "nombre": "coffe mate sobre", "precio": 11, "categoria": "leche polvo", "codigo": "7501000913282"},
     {"id": 9, "nombre": "cafe legal sobre", "precio": 8, "categoria": "cafe", "codigo": "7501052410142"},
     {"id": 10, "nombre": "nescafe sobre grande", "precio": 24, "categoria": "cafe", "codigo": "7501000912612"},
-    {"id": 11, "nombre": "gelatina grosella polvo D'Gari", "precio": 13, "categoria": "gelatinas", "codigo": "73525700254"},
+    {"id": 11, "nombre": "Salsa cátsup clemente 408 g", "precio": 17, "categoria": "salsas", "codigo": "7501052472102"},
     {"id": 12, "nombre": "tang", "precio": 6, "categoria": "polvo/agua", "codigo": "7622210572387"},
     {"id": 13, "nombre": "knor polvo sobre", "precio": 20, "categoria": "sazonadores", "codigo": "7506306313057"},
     {"id": 14, "nombre": "Riko pollo polvo sobre", "precio": 22, "categoria": "sazonadores", "codigo": "7506192504164"},
@@ -41,5 +41,8 @@
     {"id": 41, "nombre": "Frijoles refritos negros costeña", "precio": 18, "categoria": "latas", "codigo": ""},
     {"id": 42, "nombre": "Frijoles refritos bayos costeña", "precio": 18, "categoria": "latas", "codigo": ""},
     {"id": 43, "nombre": "Frijoles enteros negros costeña", "precio": 16, "categoria": "latas", "codigo": ""},
-    {"id": 44, "nombre": "Frijoles enteros bayos costeña", "precio": 16, "categoria": "latas", "codigo": ""}
+    {"id": 44, "nombre": "Frijoles enteros bayos costeña", "precio": 16, "categoria": "latas", "codigo": ""},
+    {"id": 45, "nombre": "Choco Milk sobre 18g", "precio": 7, "categoria": "chocolate polvo", "codigo": "7506205815867"},
+    {"id": 11, "nombre": "gelatina grosella polvo D'Gari", "precio": 13, "categoria": "gelatinas", "codigo": "735257002544"},
+    {"id": 11, "nombre": "gelatina mora silvestre polvo D'Gari", "precio": 13, "categoria": "gelatinas", "codigo": "73525700259"}
 ]
