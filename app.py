@@ -10,20 +10,20 @@ ARCHIVO_PRODUCTOS = "productos.json"
 
 # Productos iniciales
 productos_inicial = [
- {"id": 1, "nombre": "Nutri leche entera 1L", "precio": 22, "categoria": "lacteos", "codigo": ""},
-    {"id": 2, "nombre": "Leche lala entera", "precio": 29, "categoria": "lacteos", "codigo": ""},
-    {"id": 3, "nombre": "Leche lala deslact", "precio": 30, "categoria": "lacteos", "codigo": ""},
-    {"id": 4, "nombre": "leche alpura clasica ", "precio": 26, "categoria": "lacteos", "codigo": ""},
-    {"id": 5, "nombre": "Leche alpura deslact", "precio": 26, "categoria": "lacteos", "codigo": ""},
-    {"id": 6, "nombre": "Leche santa clara entera ", "precio": 30, "categoria": "lacteos", "codigo": ""},
-    {"id": 7, "nombre": "Leche snta clara deslacto", "precio": 30, "categoria": "lacteos", "codigo": ""},
-    {"id": 8, "nombre": "coffe mate sobre", "precio": 11, "categoria": "leche polvo", "codigo": ""},
-    {"id": 9, "nombre": "cafe legal sobre", "precio": 8, "categoria": "cafe", "codigo": ""},
-    {"id": 10, "nombre": "nescafe sobre grande", "precio": 24, "categoria": "cafe", "codigo": ""},
-    {"id": 11, "nombre": "gelatina polvo D'Gari", "precio": 13, "categoria": "gelatinas", "codigo": ""},
-    {"id": 12, "nombre": "tang", "precio": 6, "categoria": "polvo/agua", "codigo": ""},
-    {"id": 13, "nombre": "knor polvo sobre", "precio": 20, "categoria": "sazonadores", "codigo": ""},
-    {"id": 14, "nombre": "Riko pollo polvo sobre", "precio": 22, "categoria": "sazonadores", "codigo": ""},
+    {"id": 1, "nombre": "Nutri leche entera 1L", "precio": 22, "categoria": "lacteos", "codigo": "7501020540666"},
+    {"id": 2, "nombre": "Leche lala entera", "precio": 29, "categoria": "lacteos", "codigo": "7501020565935"},
+    {"id": 3, "nombre": "Leche lala deslact", "precio": 30, "categoria": "lacteos", "codigo": "7501020565911"},
+    {"id": 4, "nombre": "leche alpura clasica ", "precio": 26, "categoria": "lacteos", "codigo": "7501055900039"},
+    {"id": 5, "nombre": "Leche alpura deslact", "precio": 26, "categoria": "lacteos", "codigo": "7501055901425"},
+    {"id": 6, "nombre": "Leche santa clara entera ", "precio": 30, "categoria": "lacteos", "codigo": "7501295600126"},
+    {"id": 7, "nombre": "Leche snta clara deslacto", "precio": 30, "categoria": "lacteos", "codigo": "7501295600157"},
+    {"id": 8, "nombre": "coffe mate sobre", "precio": 11, "categoria": "leche polvo", "codigo": "7501000913282"},
+    {"id": 9, "nombre": "cafe legal sobre", "precio": 8, "categoria": "cafe", "codigo": "7501052410142"},
+    {"id": 10, "nombre": "nescafe sobre grande", "precio": 24, "categoria": "cafe", "codigo": "7501000912612"},
+    {"id": 11, "nombre": "gelatina grosella polvo D'Gari", "precio": 13, "categoria": "gelatinas", "codigo": "73525700254"},
+    {"id": 12, "nombre": "tang", "precio": 6, "categoria": "polvo/agua", "codigo": "7622210572387"},
+    {"id": 13, "nombre": "knor polvo sobre", "precio": 20, "categoria": "sazonadores", "codigo": "7506306313057"},
+    {"id": 14, "nombre": "Riko pollo polvo sobre", "precio": 22, "categoria": "sazonadores", "codigo": "7506192504164"},
     {"id": 15, "nombre": "Maiz palomero 250g", "precio": 10, "categoria": "botanas", "codigo": ""},
     {"id": 16, "nombre": "Maizena atole", "precio": 0, "categoria": "atoles", "codigo": ""},
     {"id": 17, "nombre": "Royal bote", "precio": 21, "categoria": "panaderia", "codigo": ""},
@@ -53,7 +53,7 @@ productos_inicial = [
     {"id": 41, "nombre": "Frijoles refritos negros costeña", "precio": 18, "categoria": "latas", "codigo": ""},
     {"id": 42, "nombre": "Frijoles refritos bayos costeña", "precio": 18, "categoria": "latas", "codigo": ""},
     {"id": 43, "nombre": "Frijoles enteros negros costeña", "precio": 16, "categoria": "latas", "codigo": ""},
-    {"id": 44, "nombre": "Frijoles enteros bayos costeña", "precio": 16, "categoria": "latas", "codigo": ""}
+    {"id": 44, "nombre": "Frijoles enteros bayos costeña", "precio": 16, "categoria": "latas", "codigo": ""},
 ]
 
 def guardar_productos(productos, archivo=ARCHIVO_PRODUCTOS):
