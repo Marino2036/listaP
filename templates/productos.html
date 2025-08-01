@@ -52,7 +52,7 @@
         }
         button {
             padding: 8px 12px;
-            background-color: #007bff;
+            background-color: #f66f07;
             color: white;
             border: none;
             border-radius: 5px;
@@ -78,11 +78,11 @@
             margin-top: 10px;
         }
         .mic-btn {
-            background-color: #28a745;
+            background-color: #c3c31a;
             margin-left: 5px;
         }
         .mic-btn:hover {
-            background-color: #218838;
+            background-color: #e4d60c;
         }
         footer {
             text-align: center;
@@ -114,7 +114,7 @@
             margin: 10% auto;
             padding: 20px;
             border-radius: 10px;
-            width: 90%;
+            width: 100%;
             max-width: 600px;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
         }
@@ -140,9 +140,9 @@
 <header>
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
     <nav>
-        <a href="/">Inicio</a>
+        <button onclick="mostrarModal()">➕ Agregar</button>
         <a href="{{ url_for('generar_pdf') }}">Generar PDF</a>
-        <button onclick="mostrarModal()">➕ Agregar producto</button>
+        <a href="/">Inicio</a>
     </nav>
 </header>
 
@@ -152,12 +152,13 @@
     <form method="get" action="/">
         <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
-        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
+        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎙️</button>
     </form>
 
     <h2>Escanear código de barras</h2>
     <div id="reader"></div>
-    <button type="button" onclick="startScanner()">Iniciar Escáner</button>
+    <button type="button" onclick="startScanner()">📷 Escanear</button>
+
 
     <table>
         <thead>
