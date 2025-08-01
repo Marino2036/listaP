@@ -14,7 +14,7 @@
         header {
             background-color: #4a924c;
             color: white;
-            padding: 30px 60px;
+            padding: 30px 100px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -70,7 +70,7 @@
             background: white;
         }
         th, td {
-            padding: 12px;
+            padding: 10px;
             border-bottom: 1px solid #ddd;
         }
         th {
@@ -157,10 +157,10 @@
         <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
         <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎙️</button>
-        <button type="button" onclick="startScanner()">📷 Escanear</button>
     </form>
 
-
+    <h2>Escanear código de barras</h2>
+    <div id="reader"></div>
     <button type="button" onclick="startScanner()">📷 Escanear</button>
 
 
