@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
+            width: 100%;
+             /* min-width: 0; */ /* Esto no es estrictamente necesario a menos que haya un min-width aplicado en otro lugar */
+            overflow-x: hidden; /* Esto es importante para prevenir el scroll horizontal no deseado */
             font-family: Arial, sans-serif;
             background-color: #f6f8fa;
             margin: 0;
@@ -158,7 +161,7 @@
     <form method="get" action="/">
         <input id="busqueda" type="text" name="q" placeholder="Buscar producto..." value="{{ consulta }}">
         <button type="submit">Buscar</button>
-        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎙️</button>
+        <button type="button" onclick="iniciarReconocimiento()" class="mic-btn">🎤</button>
     </form>
 
     <h2>Escanear código de barras</h2>
