@@ -189,8 +189,8 @@
                         <div class="edit-section" id="edit-section-{{ producto.id }}">
                             <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
                                 <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
-                                <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
-                                <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
+                                <input type="text" name="codigo" id="codigo-{{ producto.id }}" placeholder="Código de barras" value="{{ producto.codigo if producto.codigo else '' }}">
+                                <button type="button" onclick="startScannerEdit({{ producto.id }})">📷 Escanear código</button>
                                 <button type="submit">Actualizar</button>
                             </form>
                             <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
