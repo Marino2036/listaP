@@ -1,21 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from reportlab.pdfgen import canvas
 from io import BytesIO
-import sqlite3
+import psycopg2
+import os
 import unicodedata
 
 app = Flask(__name__)
-DB_NAME = 'productos.db'
 
-# ---------------------------- FUNCIONES DB ----------------------------
+# ---------------------------- CONEXIÓN DB POSTGRES ----------------------------
 
 def conectar_db():
-    return sqlite3.connect(DB_NAME)
+    return psycopg2.connect(os.environ.get("DATABASE_URL"))
+
+# ---------------------------- FUNCIONES DB ----------------------------
 
 def cargar_productos():
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, nombre, precio, categoria, IFNULL(codigo, '') FROM productos")
+    cursor.execute("SELECT id, nombre, precio, categoria, COALESCE(codigo, '') FROM productos")
     productos = [
         {"id": row[0], "nombre": row[1], "precio": row[2], "categoria": row[3], "codigo": row[4]}
         for row in cursor.fetchall()
@@ -26,7 +28,7 @@ def cargar_productos():
 def agregar_producto(nombre, precio, categoria, codigo=""):
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO productos (nombre, precio, categoria, codigo) VALUES (?, ?, ?, ?)",
+    cursor.execute("INSERT INTO productos (nombre, precio, categoria, codigo) VALUES (%s, %s, %s, %s)",
                    (nombre, precio, categoria, codigo))
     conn.commit()
     conn.close()
@@ -34,14 +36,14 @@ def agregar_producto(nombre, precio, categoria, codigo=""):
 def eliminar_producto(id_producto):
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM productos WHERE id = ?", (id_producto,))
+    cursor.execute("DELETE FROM productos WHERE id = %s", (id_producto,))
     conn.commit()
     conn.close()
 
 def actualizar_precio(id_producto, nuevo_precio):
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE productos SET precio = ? WHERE id = ?", (nuevo_precio, id_producto))
+    cursor.execute("UPDATE productos SET precio = %s WHERE id = %s", (nuevo_precio, id_producto))
     conn.commit()
     conn.close()
 
@@ -115,7 +117,7 @@ def generar_pdf():
 
     pdf.save()
     buffer.seek(0)
-    
+
     return send_file(buffer, as_attachment=True, download_name="lista_productos.pdf", mimetype='application/pdf')
 
 # ---------------------------- INICIO ----------------------------
