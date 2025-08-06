@@ -1,29 +1,36 @@
-import json
 import sqlite3
+import json
 
-# Leer archivo JSON
-with open('productos.json', 'r', encoding='utf-8') as file:
-    productos = json.load(file)
+def reiniciar_productos_desde_json():
+    # Conexión a la base de datos
+    conn = sqlite3.connect('productos.db')
+    cursor = conn.cursor()
 
-# Conectar a SQLite
-conn = sqlite3.connect('productos.db')
-cursor = conn.cursor()
+    # Paso 1: Eliminar todos los productos
+    cursor.execute('DELETE FROM productos')
+    conn.commit()
+    print("✅ Todos los productos eliminados de la base de datos.")
 
-# Insertar productos si no existen
-for producto in productos:
-    cursor.execute('SELECT COUNT(*) FROM productos WHERE id = ?', (producto['id'],))
-    existe = cursor.fetchone()[0]
-    if not existe:
+    # Paso 2: Cargar productos desde el JSON
+    with open('productos.json', 'r', encoding='utf-8') as archivo:
+        productos = json.load(archivo)
+
+    # Paso 3: Insertar productos en la base de datos
+    for producto in productos:
         cursor.execute('''
-            INSERT INTO productos (id, nombre, precio, categoria)
-            VALUES (?, ?, ?, ?)
-        ''', (producto['id'], producto['nombre'], producto['precio'], producto['categoria']))
-    else:
-        print(f"⚠️ Producto con ID {producto['id']} ya existe, no se insertó.")
+            INSERT INTO productos (id, nombre, precio, categoria, codigo)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            producto.get('id'),
+            producto.get('nombre'),
+            producto.get('precio'),
+            producto.get('categoria'),
+            producto.get('codigo', '')  # En caso de que no todos tengan código
+        ))
 
-# Guardar cambios y cerrar
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()
+    print(f"✅ Se importaron {len(productos)} productos desde el JSON.")
 
-print("✅ Productos nuevos importados a la base de datos.")
-
+# Ejecutar función (puedes llamarla al iniciar tu script si lo necesitas)
+reiniciar_productos_desde_json()
