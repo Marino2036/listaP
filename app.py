@@ -1,47 +1,51 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from reportlab.pdfgen import canvas
 from io import BytesIO
-import json
+import sqlite3
 import unicodedata
 
 app = Flask(__name__)
+DB_NAME = 'productos.db'
 
-ARCHIVO_PRODUCTOS = "productos.json"
+# ---------------------------- FUNCIONES DB ----------------------------
 
-# Productos iniciales
-productos_inicial = [
+def conectar_db():
+    return sqlite3.connect(DB_NAME)
 
-]
+def cargar_productos():
+    conn = conectar_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nombre, precio, categoria, IFNULL(codigo, '') FROM productos")
+    productos = [
+        {"id": row[0], "nombre": row[1], "precio": row[2], "categoria": row[3], "codigo": row[4]}
+        for row in cursor.fetchall()
+    ]
+    conn.close()
+    return productos
 
-def guardar_productos(productos, archivo=ARCHIVO_PRODUCTOS):
-    with open(archivo, "w", encoding="utf-8") as f:
-        json.dump(productos, f, indent=4, ensure_ascii=False)
+def agregar_producto(nombre, precio, categoria, codigo=""):
+    conn = conectar_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO productos (nombre, precio, categoria, codigo) VALUES (?, ?, ?, ?)",
+                   (nombre, precio, categoria, codigo))
+    conn.commit()
+    conn.close()
 
-def cargar_productos(archivo=ARCHIVO_PRODUCTOS):
-    try:
-        with open(archivo, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return productos_inicial.copy()
+def eliminar_producto(id_producto):
+    conn = conectar_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM productos WHERE id = ?", (id_producto,))
+    conn.commit()
+    conn.close()
 
-def agregar_producto(productos, nombre, precio, categoria, codigo=""):
-    nuevo_id = max([p["id"] for p in productos], default=0) + 1
-    nuevo_producto = {"id": nuevo_id, "nombre": nombre, "precio": precio, "categoria": categoria, "codigo": codigo}
-    productos.append(nuevo_producto)
-    guardar_productos(productos)
-    return nuevo_producto
+def actualizar_precio(id_producto, nuevo_precio):
+    conn = conectar_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE productos SET precio = ? WHERE id = ?", (nuevo_precio, id_producto))
+    conn.commit()
+    conn.close()
 
-def eliminar_producto(productos, id_producto):
-    productos[:] = [p for p in productos if p["id"] != id_producto]
-    guardar_productos(productos)
-
-def actualizar_precio(productos, id_producto, nuevo_precio):
-    for p in productos:
-        if p["id"] == id_producto:
-            p["precio"] = nuevo_precio
-            guardar_productos(productos)
-            return True
-    return False
+# ---------------------------- UTILIDAD ----------------------------
 
 def normalizar(texto):
     return ''.join(
@@ -49,17 +53,17 @@ def normalizar(texto):
         if not unicodedata.combining(c)
     )
 
-productos = cargar_productos()
+# ---------------------------- RUTAS ----------------------------
 
 @app.route('/')
 def lista_productos():
     consulta_original = request.args.get('q', '')
     consulta = normalizar(consulta_original)
+    productos = cargar_productos()
     if consulta:
         resultados = [
             p for p in productos
-            if consulta in normalizar(p['nombre']) 
-            or consulta in normalizar(p.get('codigo', ''))
+            if consulta in normalizar(p['nombre']) or consulta in normalizar(p.get('codigo', ''))
         ]
     else:
         resultados = productos
@@ -71,18 +75,18 @@ def agregar():
     precio = float(request.form.get('precio'))
     categoria = request.form.get('categoria')
     codigo = request.form.get('codigo', '')
-    agregar_producto(productos, nombre, precio, categoria, codigo)
+    agregar_producto(nombre, precio, categoria, codigo)
     return redirect(url_for('lista_productos'))
 
 @app.route('/eliminar/<int:id_producto>', methods=['POST'])
 def eliminar(id_producto):
-    eliminar_producto(productos, id_producto)
+    eliminar_producto(id_producto)
     return redirect(url_for('lista_productos'))
 
 @app.route('/actualizar/<int:id_producto>', methods=['POST'])
 def actualizar(id_producto):
     nuevo_precio = float(request.form.get('precio'))
-    actualizar_precio(productos, id_producto, nuevo_precio)
+    actualizar_precio(id_producto, nuevo_precio)
     return redirect(url_for('lista_productos'))
 
 @app.route('/generar_pdf')
@@ -113,6 +117,8 @@ def generar_pdf():
     buffer.seek(0)
     
     return send_file(buffer, as_attachment=True, download_name="lista_productos.pdf", mimetype='application/pdf')
+
+# ---------------------------- INICIO ----------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
