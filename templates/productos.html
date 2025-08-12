@@ -7,8 +7,7 @@
     <style>
         body {
             width: 100%;
-             /* min-width: 0; */ /* Esto no es estrictamente necesario a menos que haya un min-width aplicado en otro lugar */
-            overflow-x: hidden; /* Esto es importante para prevenir el scroll horizontal no deseado */
+            overflow-x: hidden;
             font-family: Arial, sans-serif;
             background-color: #f6f8fa;
             margin: 0;
@@ -139,9 +138,31 @@
         .close:hover {
             color: black;
         }
+
+        /* Estilos para el nuevo formulario de edición de código */
+        .edit-barcode-form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        .edit-barcode-form input[type="text"] {
+            width: 100%;
+        }
+        .edit-barcode-form button {
+            width: fit-content;
+            background-color: #007bff;
+        }
+        .edit-barcode-form button:hover {
+            background-color: #0056b3;
+        }
+        .reader-edit {
+            width: 100%;
+            max-width: 320px;
+            margin-top: 10px;
+        }
     </style>
 
-    <!-- Librería para escanear código de barras -->
     <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
 <body>
@@ -175,6 +196,7 @@
                 <th>Nombre</th>
                 <th>Precio</th>
                 <th>Categoría</th>
+                <th>Código</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -184,16 +206,25 @@
                     <td>{{ producto.nombre }}</td>
                     <td>${{ producto.precio }}</td>
                     <td>{{ producto.categoria }}</td>
+                    <td>{{ producto.codigo }}</td>
                     <td>
                         <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
                         <div class="edit-section" id="edit-section-{{ producto.id }}">
                             <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
                                 <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
-                                <button type="submit">Actualizar</button>
+                                <button type="submit">Actualizar Precio</button>
                             </form>
                             <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
                                 <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
                             </form>
+                            <form class="edit-barcode-form" method="post" action="{{ url_for('actualizar_codigo_ruta', id_producto=producto.id) }}">
+                                <input type="text" name="codigo" id="codigo-{{ producto.id }}" value="{{ producto.codigo }}" placeholder="Escribe o escanea el código">
+                                <button type="button" onclick="toggleScannerEdit({{ producto.id }})">
+                                    📷 Escanear Código
+                                </button>
+                                <button type="submit">Guardar Código</button>
+                            </form>
+                            <div class="reader-edit" id="reader-edit-{{ producto.id }}"></div>
                         </div>
                     </td>
                 </tr>
@@ -202,7 +233,6 @@
     </table>
 </main>
 
-<!-- Modal -->
 <div id="modal-agregar" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
@@ -211,7 +241,7 @@
             <input type="text" name="nombre" placeholder="Nombre" required>
             <input type="number" name="precio" placeholder="Precio" required min="0" step="0.01">
             <input type="text" name="categoria" placeholder="Categoría" required>
-            <input type="text" name="codigo" id="codigo" placeholder="Código de barras">
+            <input type="text" name="codigo" id="codigo-agregar" placeholder="Código de barras">
             <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
             <button type="submit">Agregar</button>
         </form>
@@ -224,9 +254,48 @@
 </footer>
 
 <script>
+    let html5QrCodeEdit = null;
+
     function toggleEdit(id) {
         const section = document.getElementById("edit-section-" + id);
         section.style.display = section.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleScannerEdit(id) {
+        const scannerDiv = document.getElementById("reader-edit-" + id);
+        if (scannerDiv.innerHTML.trim() === "") {
+            startEditScanner(id);
+        } else {
+            stopScanner(html5QrCodeEdit, scannerDiv);
+        }
+    }
+
+    function startEditScanner(id) {
+        const scannerDiv = document.getElementById("reader-edit-" + id);
+        html5QrCodeEdit = new Html5Qrcode(scannerDiv.id);
+        const config = { fps: 10, qrbox: 250 };
+        
+        html5QrCodeEdit.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.getElementById('codigo-' + id).value = qrCodeMessage;
+                stopScanner(html5QrCodeEdit, scannerDiv);
+            },
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner para edición", err);
+        });
+    }
+
+    function stopScanner(scannerInstance, element) {
+        if (scannerInstance) {
+            scannerInstance.stop().then(() => {
+                element.innerHTML = "";
+            }).catch(err => {
+                console.error("Error al detener el escáner", err);
+            });
+        }
     }
 
     function iniciarReconocimiento() {
@@ -270,7 +339,7 @@
             { facingMode: "environment" },
             config,
             qrCodeMessage => {
-                document.getElementById('codigo').value = qrCodeMessage;
+                document.getElementById('codigo-agregar').value = qrCodeMessage;
                 html5QrCode.stop().then(() => {
                     document.getElementById('reader-agregar').innerHTML = "";
                 }).catch(err => {
