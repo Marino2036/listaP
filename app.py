@@ -90,7 +90,11 @@ def agregar():
     nombre = request.form.get('nombre')
     precio = float(request.form.get('precio'))
     categoria = request.form.get('categoria')
-    codigo = request.form.get('codigo', '')
+    codigo_form = request.form.get('codigo', '')
+    
+    # Convierte la cadena vacía a None antes de insertar
+    codigo = None if codigo_form == '' else codigo_form
+    
     agregar_producto(nombre, precio, categoria, codigo)
     return redirect(url_for('lista_productos'))
 
@@ -101,13 +105,22 @@ def eliminar(id_producto):
 
 @app.route('/actualizar/<int:id_producto>', methods=['POST'])
 def actualizar(id_producto):
-    nuevo_precio = float(request.form.get('precio'))
-    actualizar_precio(id_producto, nuevo_precio)
+    nuevo_precio_str = request.form.get('precio')
+    nuevo_precio = float(nuevo_precio_str) if nuevo_precio_str else None
+    
+    if nuevo_precio is not None:
+        actualizar_precio(id_producto, nuevo_precio)
+    
     return redirect(url_for('lista_productos'))
 
 @app.route('/actualizar_codigo/<int:id_producto>', methods=['POST'])
 def actualizar_codigo_ruta(id_producto):
     nuevo_codigo = request.form.get('codigo')
+    
+    # Esta es la parte clave: si la cadena es vacía, la convertimos a None
+    if nuevo_codigo == '':
+        nuevo_codigo = None
+    
     actualizar_codigo(id_producto, nuevo_codigo)
     return redirect(url_for('lista_productos'))
 
