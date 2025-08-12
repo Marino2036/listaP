@@ -14,10 +14,24 @@ def conectar_db():
 
 # ---------------------------- FUNCIONES DB ----------------------------
 
-def cargar_productos():
+def cargar_productos(consulta=""):
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, nombre, precio, categoria, COALESCE(codigo, '') FROM productos")
+    
+    sql_query = "SELECT id, nombre, precio, categoria, COALESCE(codigo, '') FROM productos"
+    
+    if consulta:
+        # Usamos UNACCENT y LOWER para buscar sin importar mayúsculas, minúsculas ni acentos.
+        # Buscamos en nombre, codigo y categoria.
+        sql_query += """ WHERE unaccent(LOWER(nombre)) LIKE unaccent(LOWER(%s)) 
+                        OR unaccent(LOWER(categoria)) LIKE unaccent(LOWER(%s)) 
+                        OR unaccent(LOWER(codigo)) LIKE unaccent(LOWER(%s))"""
+        # Añadimos '%' para buscar coincidencias parciales
+        search_term = f"%{consulta}%"
+        cursor.execute(sql_query, (search_term, search_term, search_term))
+    else:
+        cursor.execute(sql_query)
+        
     productos = [
         {"id": row[0], "nombre": row[1], "precio": row[2], "categoria": row[3], "codigo": row[4]}
         for row in cursor.fetchall()
@@ -29,7 +43,7 @@ def agregar_producto(nombre, precio, categoria, codigo=""):
     conn = conectar_db()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO productos (nombre, precio, categoria, codigo) VALUES (%s, %s, %s, %s)",
-                   (nombre, precio, categoria, codigo))
+                    (nombre, precio, categoria, codigo))
     conn.commit()
     conn.close()
 
@@ -50,6 +64,8 @@ def actualizar_precio(id_producto, nuevo_precio):
 # ---------------------------- UTILIDAD ----------------------------
 
 def normalizar(texto):
+    # Strip() elimina los espacios al inicio y al final
+    texto = texto.strip()
     return ''.join(
         c for c in unicodedata.normalize('NFKD', texto.lower())
         if not unicodedata.combining(c)
@@ -60,16 +76,13 @@ def normalizar(texto):
 @app.route('/')
 def lista_productos():
     consulta_original = request.args.get('q', '')
+    # Normalizamos y eliminamos espacios al inicio/final
     consulta = normalizar(consulta_original)
-    productos = cargar_productos()
-    if consulta:
-        resultados = [
-            p for p in productos
-            if consulta in normalizar(p['nombre']) or consulta in normalizar(p.get('codigo', ''))
-        ]
-    else:
-        resultados = productos
-    return render_template('productos.html', productos=resultados, consulta=consulta_original)
+    
+    # Pasamos la consulta a la función que ahora hace el filtro en la DB
+    productos = cargar_productos(consulta)
+    
+    return render_template('productos.html', productos=productos, consulta=consulta_original)
 
 @app.route('/agregar', methods=['POST'])
 def agregar():
@@ -93,6 +106,8 @@ def actualizar(id_producto):
 
 @app.route('/generar_pdf')
 def generar_pdf():
+    # La generación de PDF ahora también debería manejar la búsqueda si es necesario
+    # Aquí te dejo el código original, pero podrías modificarlo para reflejar la búsqueda actual
     lista_productos = cargar_productos()
 
     buffer = BytesIO()
