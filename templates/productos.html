@@ -140,20 +140,20 @@
         }
 
         /* Estilos para el nuevo formulario de edición de código */
-        .edit-barcode-form {
+        .edit-form-unified {
             display: flex;
             flex-direction: column;
             margin-top: 10px;
             gap: 10px;
         }
-        .edit-barcode-form input[type="text"] {
+        .edit-form-unified input[type="text"] {
             width: 100%;
         }
-        .edit-barcode-form button {
+        .edit-form-unified button {
             width: fit-content;
             background-color: #007bff;
         }
-        .edit-barcode-form button:hover {
+        .edit-form-unified button:hover {
             background-color: #0056b3;
         }
         .reader-edit {
@@ -207,21 +207,20 @@
                     <td>
                         <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
                         <div class="edit-section" id="edit-section-{{ producto.id }}">
-                            <form method="post" action="/actualizar/{{ producto.id }}" style="display:inline;">
-                                <input type="number" name="precio" placeholder="Nuevo precio" min="0" step="0.01" required>
-                                <button type="submit">Actualizar Precio</button>
+                            <form class="edit-form-unified" method="post" action="{{ url_for('editar_producto_ruta', id_producto=producto.id) }}">
+                                <input type="number" name="precio" placeholder="Precio" min="0" step="0.01" value="{{ producto.precio }}">
+                                <div style="display:flex; align-items:center;">
+                                    <input type="text" name="codigo" id="codigo-{{ producto.id }}" value="{{ producto.codigo }}" placeholder="Código de barras">
+                                    <button type="button" onclick="toggleScannerEdit({{ producto.id }})">
+                                        📷
+                                    </button>
+                                </div>
+                                <div class="reader-edit" id="reader-edit-{{ producto.id }}"></div>
+                                <button type="submit">Guardar Cambios</button>
                             </form>
                             <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
                                 <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar</button>
                             </form>
-                            <form class="edit-barcode-form" method="post" action="{{ url_for('actualizar_codigo_ruta', id_producto=producto.id) }}">
-                                <input type="text" name="codigo" id="codigo-{{ producto.id }}" value="{{ producto.codigo }}" placeholder="Escribe o escanea el código">
-                                <button type="button" onclick="toggleScannerEdit({{ producto.id }})">
-                                    📷 Escanear Código
-                                </button>
-                                <button type="submit">Guardar Código</button>
-                            </form>
-                            <div class="reader-edit" id="reader-edit-{{ producto.id }}"></div>
                         </div>
                     </td>
                 </tr>
@@ -264,6 +263,7 @@
             startEditScanner(id);
         } else {
             stopScanner(html5QrCodeEdit, scannerDiv);
+            html5QrCodeEdit = null;
         }
     }
 
@@ -278,6 +278,7 @@
             qrCodeMessage => {
                 document.getElementById('codigo-' + id).value = qrCodeMessage;
                 stopScanner(html5QrCodeEdit, scannerDiv);
+                html5QrCodeEdit = null;
             },
             errorMessage => {}
         ).catch(err => {
@@ -286,7 +287,7 @@
     }
 
     function stopScanner(scannerInstance, element) {
-        if (scannerInstance) {
+        if (scannerInstance && scannerInstance.isScanning) {
             scannerInstance.stop().then(() => {
                 element.innerHTML = "";
             }).catch(err => {

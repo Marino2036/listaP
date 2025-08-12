@@ -51,17 +51,11 @@ def eliminar_producto(id_producto):
     conn.commit()
     conn.close()
 
-def actualizar_precio(id_producto, nuevo_precio):
+def editar_producto(id_producto, nuevo_precio, nuevo_codigo):
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE productos SET precio = %s WHERE id = %s", (nuevo_precio, id_producto))
-    conn.commit()
-    conn.close()
-
-def actualizar_codigo(id_producto, nuevo_codigo):
-    conn = conectar_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE productos SET codigo = %s WHERE id = %s", (nuevo_codigo, id_producto))
+    cursor.execute("UPDATE productos SET precio = %s, codigo = %s WHERE id = %s", 
+                   (nuevo_precio, nuevo_codigo, id_producto))
     conn.commit()
     conn.close()
 
@@ -88,12 +82,12 @@ def lista_productos():
 @app.route('/agregar', methods=['POST'])
 def agregar():
     nombre = request.form.get('nombre')
-    precio = float(request.form.get('precio'))
+    precio = request.form.get('precio')
     categoria = request.form.get('categoria')
     codigo_form = request.form.get('codigo', '')
     
-    # Convierte la cadena vacía a None antes de insertar
-    codigo = None if codigo_form == '' else codigo_form
+    precio = float(precio) if precio and precio.strip() else None
+    codigo = codigo_form if codigo_form and codigo_form.strip() else None
     
     agregar_producto(nombre, precio, categoria, codigo)
     return redirect(url_for('lista_productos'))
@@ -103,26 +97,17 @@ def eliminar(id_producto):
     eliminar_producto(id_producto)
     return redirect(url_for('lista_productos'))
 
-@app.route('/actualizar/<int:id_producto>', methods=['POST'])
-def actualizar(id_producto):
+@app.route('/editar_producto/<int:id_producto>', methods=['POST'])
+def editar_producto_ruta(id_producto):
     nuevo_precio_str = request.form.get('precio')
+    nuevo_codigo_str = request.form.get('codigo')
+    
     nuevo_precio = float(nuevo_precio_str) if nuevo_precio_str else None
+    nuevo_codigo = nuevo_codigo_str if nuevo_codigo_str else None
     
-    if nuevo_precio is not None:
-        actualizar_precio(id_producto, nuevo_precio)
-    
+    editar_producto(id_producto, nuevo_precio, nuevo_codigo)
     return redirect(url_for('lista_productos'))
 
-@app.route('/actualizar_codigo/<int:id_producto>', methods=['POST'])
-def actualizar_codigo_ruta(id_producto):
-    nuevo_codigo = request.form.get('codigo')
-    
-    # Esta es la parte clave: si la cadena es vacía, la convertimos a None
-    if nuevo_codigo == '':
-        nuevo_codigo = None
-    
-    actualizar_codigo(id_producto, nuevo_codigo)
-    return redirect(url_for('lista_productos'))
 
 @app.route('/generar_pdf')
 def generar_pdf():
