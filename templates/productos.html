@@ -189,14 +189,12 @@
     <div id="reader"></div>
     <button type="button" onclick="startScanner()">📷 Escanear</button>
 
-
     <table>
         <thead>
             <tr>
                 <th>Nombre</th>
                 <th>Precio</th>
                 <th>Categoría</th>
-                <th>Código</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -206,7 +204,6 @@
                     <td>{{ producto.nombre }}</td>
                     <td>${{ producto.precio }}</td>
                     <td>{{ producto.categoria }}</td>
-                    <td>{{ producto.codigo }}</td>
                     <td>
                         <button type="button" onclick="toggleEdit({{ producto.id }})">Editar</button>
                         <div class="edit-section" id="edit-section-{{ producto.id }}">
