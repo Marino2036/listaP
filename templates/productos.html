@@ -98,26 +98,10 @@
             color: gray;
             font-size: 0.9em;
         }
-        .scanner-container {
-            position: relative;
-            width: 100%;
-            max-width: 320px;
+        #reader, #reader-agregar {
+            width: 320px;
             margin-top: 10px;
             margin-bottom: 20px;
-            border: 2px solid #ccc;
-            box-sizing: border-box;
-        }
-        .scanner-container video {
-            width: 100%;
-            display: block;
-        }
-        .drawingBuffer {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        #result_strip {
-            display: none;
         }
 
         /* Modal */
@@ -172,14 +156,14 @@
         .edit-form-unified button:hover {
             background-color: #0056b3;
         }
-        .reader-edit-container {
+        .reader-edit {
             width: 100%;
             max-width: 320px;
             margin-top: 10px;
         }
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -202,7 +186,7 @@
     </form>
 
     <h2>Escanear código de barras</h2>
-    <div id="interactive" class="scanner-container"></div>
+    <div id="reader"></div>
     <button type="button" onclick="startScanner()">📷 Escanear</button>
 
     <table>
@@ -231,7 +215,7 @@
                                         📷
                                     </button>
                                 </div>
-                                <div class="scanner-container" id="reader-edit-container-{{ producto.id }}"></div>
+                                <div class="reader-edit" id="reader-edit-{{ producto.id }}"></div>
                                 <button type="submit">Guardar Cambios</button>
                             </form>
                             <form method="post" action="/eliminar/{{ producto.id }}" style="display:inline;">
@@ -257,7 +241,7 @@
             <button type="button" onclick="startAddScanner()">📷 Escanear código</button>
             <button type="submit">Agregar</button>
         </form>
-        <div class="scanner-container" id="reader-agregar-container"></div>
+        <div id="reader-agregar"></div>
     </div>
 </div>
 
@@ -266,133 +250,73 @@
 </footer>
 
 <script>
-    let scannerRunning = false;
+    let html5QrCodeEdit = null;
+    let html5QrCode = null;
+    let html5QrCodeAdd = null;
 
-    function stopScanner() {
-        if (scannerRunning) {
-            Quagga.stop();
-            scannerRunning = false;
-        }
+    function toggleEdit(id) {
+        const section = document.getElementById("edit-section-" + id);
+        section.style.display = section.style.display === "block" ? "none" : "block";
     }
 
-    function startScanner() {
-        if (scannerRunning) {
-            stopScanner();
-            return;
+    function stopAllScanners() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                document.getElementById('reader').innerHTML = "";
+            }).catch(err => {
+                console.error("Error al detener el escáner de búsqueda", err);
+            });
+            html5QrCode = null;
         }
-        
-        const target = document.querySelector('#interactive.scanner-container');
-
-        Quagga.init({
-            inputStream : {
-                name : "Live",
-                type : "LiveStream",
-                target: target,
-                constraints: {
-                    facingMode: "environment", // usa la cámara trasera
-                    width: { min: 640, max: 1280 }, // Mejora la resolución para mejor enfoque
-                    height: { min: 480, max: 720 }
-                }
-            },
-            decoder: {
-                readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"]
-            }
-        }, function(err) {
-            if (err) {
-                console.error("Error al iniciar Quagga", err);
-                return;
-            }
-            Quagga.start();
-            scannerRunning = true;
-        });
-
-        Quagga.onDetected(function(result) {
-            const code = result.codeResult.code;
-            if (code && code.length >= 6) { // Verificar que el código no sea nulo
-                document.getElementById('busqueda').value = code;
-                stopScanner();
-                document.forms[0].submit();
-            }
-        });
-    }
-
-    function startAddScanner() {
-        if (scannerRunning) {
-            stopScanner();
-            return;
+        if (html5QrCodeAdd && html5QrCodeAdd.isScanning) {
+            html5QrCodeAdd.stop().then(() => {
+                document.getElementById('reader-agregar').innerHTML = "";
+            }).catch(err => {
+                console.error("Error al detener el escáner de agregar", err);
+            });
+            html5QrCodeAdd = null;
         }
-
-        const target = document.querySelector('#reader-agregar-container');
-        
-        Quagga.init({
-            inputStream : {
-                name : "Live",
-                type : "LiveStream",
-                target: target,
-                constraints: {
-                    facingMode: "environment",
-                    width: { min: 640, max: 1280 },
-                    height: { min: 480, max: 720 }
+        if (html5QrCodeEdit && html5QrCodeEdit.isScanning) {
+            html5QrCodeEdit.stop().then(() => {
+                const elementId = html5QrCodeEdit._elementId;
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = "";
                 }
-            },
-            decoder: {
-                readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"]
-            }
-        }, function(err) {
-            if (err) {
-                console.error("Error al iniciar Quagga", err);
-                return;
-            }
-            Quagga.start();
-            scannerRunning = true;
-        });
-
-        Quagga.onDetected(function(result) {
-            const code = result.codeResult.code;
-            if (code && code.length >= 6) {
-                document.getElementById('codigo-agregar').value = code;
-                stopScanner();
-            }
-        });
+            }).catch(err => {
+                console.error("Error al detener el escáner de edición", err);
+            });
+            html5QrCodeEdit = null;
+        }
     }
 
     function toggleScannerEdit(id) {
-        if (scannerRunning) {
-            stopScanner();
-            return;
+        const scannerDiv = document.getElementById("reader-edit-" + id);
+        if (scannerDiv.innerHTML.trim() === "") {
+            stopAllScanners();
+            startEditScanner(id);
+        } else {
+            stopAllScanners();
         }
+    }
 
-        const target = document.getElementById(`reader-edit-container-${id}`);
-
-        Quagga.init({
-            inputStream : {
-                name : "Live",
-                type : "LiveStream",
-                target: target,
-                constraints: {
-                    facingMode: "environment",
-                    width: { min: 640, max: 1280 },
-                    height: { min: 480, max: 720 }
+    function startEditScanner(id) {
+        const scannerDiv = document.getElementById("reader-edit-" + id);
+        html5QrCodeEdit = new Html5Qrcode(scannerDiv.id);
+        const config = { fps: 10, qrbox: 250 };
+        
+        html5QrCodeEdit.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                if (qrCodeMessage && qrCodeMessage.length >= 6) {
+                    document.getElementById('codigo-' + id).value = qrCodeMessage;
+                    stopAllScanners();
                 }
             },
-            decoder: {
-                readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"]
-            }
-        }, function(err) {
-            if (err) {
-                console.error("Error al iniciar Quagga para edición", err);
-                return;
-            }
-            Quagga.start();
-            scannerRunning = true;
-        });
-
-        Quagga.onDetected(function(result) {
-            const code = result.codeResult.code;
-            if (code && code.length >= 6) {
-                document.getElementById(`codigo-${id}`).value = code;
-                stopScanner();
-            }
+            errorMessage => {}
+        ).catch(err => {
+            console.error("No se pudo iniciar el escáner para edición", err);
         });
     }
 
@@ -408,9 +332,55 @@
         reconocimiento.start();
     }
 
-    function toggleEdit(id) {
-        const section = document.getElementById("edit-section-" + id);
-        section.style.display = section.style.display === "block" ? "none" : "block";
+    function startScanner() {
+        const scannerDiv = document.getElementById("reader");
+        if (scannerDiv.innerHTML.trim() === "") {
+            stopAllScanners();
+            html5QrCode = new Html5Qrcode(scannerDiv.id);
+            const config = { fps: 10, qrbox: { width: 300, height: 150 } };
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeMessage => {
+                    if (qrCodeMessage && qrCodeMessage.length >= 6) {
+                        document.getElementById('busqueda').value = qrCodeMessage;
+                        stopAllScanners();
+                        document.forms[0].submit();
+                    }
+                },
+                errorMessage => {}
+            ).catch(err => {
+                console.error("No se pudo iniciar el escáner", err);
+            });
+        } else {
+            stopAllScanners();
+        }
+    }
+
+    function startAddScanner() {
+        const scannerDiv = document.getElementById("reader-agregar");
+        if (scannerDiv.innerHTML.trim() === "") {
+            stopAllScanners();
+            html5QrCodeAdd = new Html5Qrcode(scannerDiv.id);
+            const config = { fps: 10, qrbox: { width: 300, height: 150 } };
+
+            html5QrCodeAdd.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeMessage => {
+                    if (qrCodeMessage && qrCodeMessage.length >= 6) {
+                        document.getElementById('codigo-agregar').value = qrCodeMessage;
+                        stopAllScanners();
+                    }
+                },
+                errorMessage => {}
+            ).catch(err => {
+                console.error("No se pudo iniciar el escáner", err);
+            });
+        } else {
+            stopAllScanners();
+        }
     }
 
     function mostrarModal() {
@@ -419,7 +389,7 @@
 
     function cerrarModal() {
         document.getElementById("modal-agregar").style.display = "none";
-        stopScanner();
+        stopAllScanners();
     }
 
     window.onclick = function(event) {
