@@ -251,49 +251,61 @@
 
 <script>
     let html5QrCodeEdit = null;
+    let html5QrCode = null;
+    let html5QrCodeAdd = null;
 
     function toggleEdit(id) {
         const section = document.getElementById("edit-section-" + id);
         section.style.display = section.style.display === "block" ? "none" : "block";
     }
 
+    function stopAllScanners() {
+        if (html5QrCode) {
+            html5QrCode.stop();
+            document.getElementById('reader').innerHTML = "";
+            html5QrCode = null;
+        }
+        if (html5QrCodeAdd) {
+            html5QrCodeAdd.stop();
+            document.getElementById('reader-agregar').innerHTML = "";
+            html5QrCodeAdd = null;
+        }
+        if (html5QrCodeEdit) {
+            html5QrCodeEdit.stop();
+            document.getElementById('reader-edit-' + html5QrCodeEdit._elementId.split('-').pop()).innerHTML = "";
+            html5QrCodeEdit = null;
+        }
+    }
+
     function toggleScannerEdit(id) {
         const scannerDiv = document.getElementById("reader-edit-" + id);
         if (scannerDiv.innerHTML.trim() === "") {
+            stopAllScanners();
             startEditScanner(id);
         } else {
-            stopScanner(html5QrCodeEdit, scannerDiv);
-            html5QrCodeEdit = null;
+            stopAllScanners();
         }
     }
 
     function startEditScanner(id) {
         const scannerDiv = document.getElementById("reader-edit-" + id);
         html5QrCodeEdit = new Html5Qrcode(scannerDiv.id);
-        const config = { fps: 10, qrbox: 250 };
+        const config = { fps: 10, qrbox: { width: 250, height: 125 } };
         
         html5QrCodeEdit.start(
             { facingMode: "environment" },
             config,
             qrCodeMessage => {
-                document.getElementById('codigo-' + id).value = qrCodeMessage;
-                stopScanner(html5QrCodeEdit, scannerDiv);
-                html5QrCodeEdit = null;
+                // ✅ Validación de longitud: solo si el código es suficientemente largo
+                if (qrCodeMessage.length >= 6) {
+                    document.getElementById('codigo-' + id).value = qrCodeMessage;
+                    stopAllScanners();
+                }
             },
             errorMessage => {}
         ).catch(err => {
             console.error("No se pudo iniciar el escáner para edición", err);
         });
-    }
-
-    function stopScanner(scannerInstance, element) {
-        if (scannerInstance && scannerInstance.isScanning) {
-            scannerInstance.stop().then(() => {
-                element.innerHTML = "";
-            }).catch(err => {
-                console.error("Error al detener el escáner", err);
-            });
-        }
     }
 
     function iniciarReconocimiento() {
@@ -309,45 +321,56 @@
     }
 
     function startScanner() {
-        const html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: 250 };
-
-        html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            qrCodeMessage => {
-                document.getElementById('busqueda').value = qrCodeMessage;
-                html5QrCode.stop().then(() => {
-                    document.forms[0].submit();
-                }).catch(err => {
-                    console.error("Error al detener el escáner", err);
-                });
-            },
-            errorMessage => {}
-        ).catch(err => {
-            console.error("No se pudo iniciar el escáner", err);
-        });
+        const scannerDiv = document.getElementById("reader");
+        if (scannerDiv.innerHTML.trim() === "") {
+            stopAllScanners();
+            html5QrCode = new Html5Qrcode(scannerDiv.id);
+            const config = { fps: 10, qrbox: { width: 300, height: 150 } };
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeMessage => {
+                    // ✅ Validación de longitud: solo si el código es suficientemente largo
+                    if (qrCodeMessage.length >= 6) {
+                        document.getElementById('busqueda').value = qrCodeMessage;
+                        stopAllScanners();
+                        document.forms[0].submit();
+                    }
+                },
+                errorMessage => {}
+            ).catch(err => {
+                console.error("No se pudo iniciar el escáner", err);
+            });
+        } else {
+            stopAllScanners();
+        }
     }
 
     function startAddScanner() {
-        const html5QrCode = new Html5Qrcode("reader-agregar");
-        const config = { fps: 10, qrbox: 250 };
-
-        html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            qrCodeMessage => {
-                document.getElementById('codigo-agregar').value = qrCodeMessage;
-                html5QrCode.stop().then(() => {
-                    document.getElementById('reader-agregar').innerHTML = "";
-                }).catch(err => {
-                    console.error("Error al detener escáner", err);
-                });
-            },
-            errorMessage => {}
-        ).catch(err => {
-            console.error("No se pudo iniciar el escáner", err);
-        });
+        const scannerDiv = document.getElementById("reader-agregar");
+        if (scannerDiv.innerHTML.trim() === "") {
+            stopAllScanners();
+            html5QrCodeAdd = new Html5Qrcode(scannerDiv.id);
+            const config = { fps: 10, qrbox: { width: 300, height: 150 } };
+            
+            html5QrCodeAdd.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeMessage => {
+                    // ✅ Validación de longitud: solo si el código es suficientemente largo
+                    if (qrCodeMessage.length >= 6) {
+                        document.getElementById('codigo-agregar').value = qrCodeMessage;
+                        stopAllScanners();
+                    }
+                },
+                errorMessage => {}
+            ).catch(err => {
+                console.error("No se pudo iniciar el escáner", err);
+            });
+        } else {
+            stopAllScanners();
+        }
     }
 
     function mostrarModal() {
@@ -356,7 +379,7 @@
 
     function cerrarModal() {
         document.getElementById("modal-agregar").style.display = "none";
-        document.getElementById("reader-agregar").innerHTML = "";
+        stopAllScanners();
     }
 
     window.onclick = function(event) {

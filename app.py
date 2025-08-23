@@ -18,16 +18,16 @@ def cargar_productos(consulta=""):
     conn = conectar_db()
     cursor = conn.cursor()
     
-    sql_query = "SELECT id, nombre, precio, categoria, COALESCE(codigo, '') FROM productos"
+    # Se ajusta la consulta para buscar coincidencias parciales y manejar valores nulos en el campo "codigo"
+    sql_query = """SELECT id, nombre, precio, categoria, COALESCE(codigo, '') 
+                   FROM productos
+                   WHERE unaccent(LOWER(nombre)) LIKE unaccent(LOWER(%s)) 
+                     OR unaccent(LOWER(categoria)) LIKE unaccent(LOWER(%s)) 
+                     OR (codigo IS NOT NULL AND unaccent(LOWER(codigo)) LIKE unaccent(LOWER(%s)))
+                   ORDER BY nombre"""
     
-    if consulta:
-        sql_query += """ WHERE unaccent(LOWER(nombre)) LIKE unaccent(LOWER(%s)) 
-                          OR unaccent(LOWER(categoria)) LIKE unaccent(LOWER(%s)) 
-                          OR unaccent(LOWER(codigo)) LIKE unaccent(LOWER(%s))"""
-        search_term = f"%{consulta}%"
-        cursor.execute(sql_query, (search_term, search_term, search_term))
-    else:
-        cursor.execute(sql_query)
+    search_term = f"%{consulta}%"
+    cursor.execute(sql_query, (search_term, search_term, search_term))
         
     productos = [
         {"id": row[0], "nombre": row[1], "precio": row[2], "categoria": row[3], "codigo": row[4]}
@@ -62,6 +62,8 @@ def editar_producto(id_producto, nuevo_precio, nuevo_codigo):
 # ---------------------------- UTILIDAD ----------------------------
 
 def normalizar(texto):
+    if texto is None:
+        return ""
     texto = texto.strip()
     return ''.join(
         c for c in unicodedata.normalize('NFKD', texto.lower())
